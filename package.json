@@ -1,0 +1,32 @@
+{
+  "name": "schweiz-klingt-anders",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Schweiz klingt anders – Eine interaktive Reise durch Dialekte und Klänge (Schulprojekt BG & Musik)",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b",
+    "geo": "node scripts/build-geo.mjs",
+    "symbols": "node scripts/copy-symbols.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "ch-canton-symbols": "^1.3.2",
+    "d3-geo": "^3.1.2",
+    "swiss-maps": "^4.7.0",
+    "topojson-client": "^3.1.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
+  }
+}

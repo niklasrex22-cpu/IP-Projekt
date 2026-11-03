@@ -1,0 +1,581 @@
+/* ==========================================================================
+   Karte
+   ========================================================================== */
+.swiss-map {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1000 / 640;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.swiss-map svg {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+  --k: 1;
+}
+.swiss-map:not(.is-interactive) svg {
+  touch-action: auto;
+}
+.swiss-map.is-interactive svg {
+  cursor: grab;
+}
+.swiss-map.is-ambient svg {
+  overflow: visible;
+}
+.swiss-map.is-interactive svg:active {
+  cursor: grabbing;
+}
+
+.swiss-map .country-shadow {
+  fill: var(--ink);
+  opacity: 0.08;
+  transform: translate(4px, 7px);
+}
+
+.swiss-map .canton {
+  cursor: pointer;
+  outline: none;
+}
+.swiss-map:not(.is-interactive) .canton {
+  cursor: default;
+}
+
+.swiss-map .canton .fill {
+  fill: var(--c);
+  transition: fill 0.5s var(--ease), opacity 0.5s var(--ease), filter 0.35s var(--ease);
+}
+.swiss-map .canton .texture,
+.swiss-map .canton .multi {
+  pointer-events: none;
+  transition: opacity 0.5s var(--ease);
+}
+.swiss-map .canton .multi {
+  opacity: 0.42;
+}
+.swiss-map .canton .hit {
+  fill: var(--c);
+  stroke: var(--paper);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  fill-opacity: 0.0;
+  stroke-opacity: 0;
+  transition: fill-opacity 0.3s, stroke-opacity 0.3s;
+}
+
+/* Hover: subtile Farbveränderung */
+.swiss-map.is-interactive .canton:hover .fill,
+.swiss-map.is-interactive .canton:focus-visible .fill {
+  filter: brightness(1.12) saturate(1.15);
+}
+.swiss-map.is-interactive .canton:hover .hit,
+.swiss-map.is-interactive .canton:focus-visible .hit {
+  fill-opacity: 0.9;
+  stroke-opacity: 1;
+}
+
+/* Auswahl: Rest tritt zurück */
+.swiss-map.has-selection .canton:not(.is-selected):not(.is-marked) .fill {
+  opacity: 0.5;
+}
+.swiss-map.has-selection .canton:not(.is-selected):not(.is-marked) .texture {
+  opacity: 0.4;
+}
+.swiss-map.has-selection.is-interactive .canton:not(.is-selected):hover .fill {
+  opacity: 0.85;
+}
+
+.swiss-map .canton.is-marked .fill {
+  filter: saturate(1.2);
+}
+
+.swiss-map .selected-outline {
+  fill: var(--accent);
+  fill-opacity: 0.0;
+  stroke: var(--ink);
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+  animation: outline-in 0.6s var(--ease) both;
+}
+@keyframes outline-in {
+  from {
+    stroke-opacity: 0;
+    stroke-width: 8;
+  }
+}
+
+.swiss-map .lakes path {
+  fill: #cfdbe0;
+  stroke: #b6c8cf;
+  stroke-width: 0.6;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.swiss-map .borders {
+  fill: none;
+  stroke: var(--paper);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+.swiss-map .country-outline {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+/* Modus: Geografisch – sachlich */
+.swiss-map.mode-geo .canton .fill {
+  fill: color-mix(in srgb, var(--c) 14%, #f7f3ec);
+}
+.swiss-map.mode-geo.is-interactive .canton:hover .fill {
+  fill: color-mix(in srgb, var(--c) 32%, #f7f3ec);
+  filter: none;
+}
+.swiss-map.mode-geo .canton.is-selected .fill {
+  fill: color-mix(in srgb, var(--c) 60%, #f7f3ec);
+}
+.swiss-map.mode-geo.has-selection .canton:not(.is-selected) .fill {
+  opacity: 1;
+}
+.swiss-map.mode-geo .borders {
+  stroke: var(--ink-2);
+  stroke-width: 0.9;
+  stroke-dasharray: none;
+}
+.swiss-map.mode-geo .lakes path {
+  fill: #bcd2dd;
+}
+.swiss-map .labels text {
+  font-family: var(--font-text);
+  font-weight: 700;
+  font-size: calc(var(--k) * 12px);
+  letter-spacing: 0.06em;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: #f7f3ec;
+  stroke-width: calc(var(--k) * 3px);
+  pointer-events: none;
+}
+.swiss-map .labels text.small {
+  font-size: calc(var(--k) * 9.5px);
+}
+
+/* Modus: Wappen */
+.swiss-map.mode-wappen .canton .fill {
+  fill: color-mix(in srgb, var(--c) 8%, #f2ede4);
+}
+.swiss-map.mode-wappen.is-interactive .canton:hover .fill {
+  fill: color-mix(in srgb, var(--c) 30%, #f2ede4);
+  filter: none;
+}
+.swiss-map.mode-wappen .canton.is-selected .fill {
+  fill: color-mix(in srgb, var(--c) 45%, #f2ede4);
+}
+.swiss-map.mode-wappen.has-selection .canton:not(.is-selected) .fill {
+  opacity: 1;
+}
+.swiss-map.mode-wappen .borders {
+  stroke: var(--line-strong);
+  stroke-width: 1;
+}
+.swiss-map .map-wappen {
+  pointer-events: none;
+  filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.35));
+}
+
+/* Musik-Reaktionen */
+.swiss-map .ripple {
+  fill: none;
+  stroke: var(--rc, var(--accent));
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ripple 1.2s var(--ease) forwards;
+  pointer-events: none;
+}
+.swiss-map .ripple.drum {
+  stroke: var(--ink);
+  stroke-width: 1.2;
+  animation-duration: 0.9s;
+}
+@keyframes ripple {
+  from {
+    transform: scale(0.2);
+    opacity: 0.95;
+  }
+  to {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
+/* Startseite: pulsierende Klangpunkte */
+.swiss-map .ambient circle {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ambient 4s var(--ease) infinite;
+}
+@keyframes ambient {
+  0%,
+  100% {
+    transform: scale(0.7);
+    opacity: 0.6;
+  }
+  12% {
+    transform: scale(1.6);
+    opacity: 1;
+    fill: var(--c);
+  }
+  40% {
+    transform: scale(0.9);
+  }
+}
+
+.map-tip {
+  position: absolute;
+  z-index: 5;
+  transform: translate(-50%, calc(-100% - 16px));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 12px;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: var(--shadow-lg);
+  animation: tip-in 0.18s var(--ease);
+}
+.map-tip strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1.1;
+}
+.map-tip span {
+  font-size: 12px;
+  opacity: 0.75;
+}
+@keyframes tip-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-100% - 8px));
+  }
+}
+
+/* ==========================================================================
+   Visualizer
+   ========================================================================== */
+.viz {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius);
+  background:
+    radial-gradient(120% 90% at 50% 50%, color-mix(in srgb, var(--accent) 10%, var(--card)) 0%, var(--card) 70%);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.viz canvas {
+  width: 100%;
+  height: 100%;
+}
+.viz-idle {
+  position: absolute;
+  inset: auto 0 14px 0;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.motif-glyph {
+  color: var(--ink);
+}
+
+/* ==========================================================================
+   Kanton-Detailansicht
+   ========================================================================== */
+.detail {
+  --c: var(--accent);
+  position: relative;
+  display: grid;
+  gap: 22px;
+  animation: detail-in 0.6s var(--ease) both;
+}
+@keyframes detail-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+}
+
+.detail-hero {
+  position: relative;
+  border-radius: var(--radius);
+  padding: clamp(20px, 3vw, 32px);
+  color: #fff;
+  background: var(--c);
+  overflow: hidden;
+  isolation: isolate;
+}
+.detail-hero::before {
+  /* abstraktes Muster aus dem Klangmotiv */
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.28) 0 18%, transparent 19%),
+    radial-gradient(circle at 85% 20%, transparent 0 28%, rgba(255, 255, 255, 0.16) 28.5% 29.5%, transparent 30%),
+    radial-gradient(circle at 85% 20%, transparent 0 40%, rgba(255, 255, 255, 0.12) 40.5% 41.5%, transparent 42%),
+    linear-gradient(160deg, transparent 40%, rgba(0, 0, 0, 0.22));
+}
+.detail-hero .top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+.detail-hero h2 {
+  font-size: clamp(40px, 5.5vw, 72px);
+  line-height: 0.92;
+  margin-top: 6px;
+}
+.detail-hero .abbr {
+  font-family: var(--font-text);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  font-size: 13px;
+  opacity: 0.9;
+}
+.detail-hero .wappen {
+  border-radius: 6px;
+  box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.5);
+  background: #fff;
+  flex: none;
+}
+.detail-hero .facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px 22px;
+  margin-top: 22px;
+  font-size: 14px;
+}
+.detail-hero .facts dt {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.detail-hero .facts dd {
+  margin: 2px 0 0;
+  font-weight: 600;
+}
+.detail-hero .glyph {
+  margin-top: 20px;
+  color: #fff;
+  opacity: 0.95;
+}
+.detail-hero .close {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+
+.detail section h3 {
+  font-size: 26px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.detail section h3 .num {
+  font-family: var(--font-text);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c);
+  letter-spacing: 0.1em;
+}
+
+.words {
+  display: grid;
+  gap: 10px;
+}
+.word {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 16px;
+  padding: 16px 18px;
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--c);
+  transition: transform 0.3s var(--ease), box-shadow 0.3s;
+}
+.word:hover {
+  transform: translateX(3px);
+  box-shadow: var(--shadow);
+}
+.word .w {
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1.1;
+}
+.word .t {
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.word .m {
+  grid-column: 1 / -1;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.word .meta {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+.word.is-placeholder {
+  border-left-style: dashed;
+  background: transparent;
+}
+
+.recording {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 16px;
+  font-size: 14px;
+}
+.kv dt {
+  color: var(--muted);
+}
+.kv dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.source-list {
+  font-size: 13px;
+  color: var(--ink-2);
+  display: grid;
+  gap: 8px;
+  padding-left: 18px;
+  margin: 0;
+}
+.source-list a {
+  color: var(--ink);
+  text-underline-offset: 3px;
+}
+
+/* ==========================================================================
+   Analyse-Darstellung (Sprache als Klangwelle)
+   ========================================================================== */
+.analysis svg {
+  width: 100%;
+  height: auto;
+}
+.analysis .stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+.stat {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--paper-2);
+}
+.stat b {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 500;
+}
+.stat span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Stepgrid (sichtbare Partitur) */
+.stepgrid {
+  display: grid;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.stepgrid .row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+.stepgrid .row > span {
+  font-size: 12px;
+  color: var(--ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stepgrid .cells {
+  display: grid;
+  gap: 2px;
+  min-width: 380px;
+}
+.stepgrid .cell {
+  height: 18px;
+  border-radius: 3px;
+  background: var(--paper-2);
+  transition: background 0.1s, transform 0.1s;
+}
+.stepgrid .cell.on {
+  background: color-mix(in srgb, var(--accent) 65%, var(--paper-2));
+}
+.stepgrid .cell.hold {
+  background: color-mix(in srgb, var(--accent) 30%, var(--paper-2));
+}
+.stepgrid .cell.bar {
+  box-shadow: inset 2px 0 0 var(--line-strong);
+}
+.stepgrid .cell.now {
+  background: var(--ink);
+  transform: scaleY(1.2);
+}
+@media (max-width: 600px) {
+  .stepgrid .row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
