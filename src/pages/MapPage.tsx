@@ -75,6 +75,14 @@ export function MapPage({ cantonId }: { cantonId?: string }) {
     else navigate("karte", id);
   };
 
+  /** Tipp auf der Karte: vorerst nur Musik abspielen bzw. stoppen (Detailansicht über die Liste). */
+  const tapCanton = (id: string) => {
+    const c = CANTON_BY_ID[id];
+    if (!c) return;
+    if (audio.state.playing && audio.state.cantonId === id) audio.stop();
+    else playCantonMusic(c);
+  };
+
   const groups: LanguageCode[] = ["de", "fr", "it", "rm"];
 
   return (
@@ -110,7 +118,7 @@ export function MapPage({ cantonId }: { cantonId?: string }) {
           </div>
         </div>
 
-        <SwissMap handleRef={mapRef} mode={mode} selectedId={cantonId ?? null} onSelect={select} />
+        <SwissMap handleRef={mapRef} mode={mode} selectedId={cantonId ?? null} onSelect={tapCanton} tapHint="Tippen: Musik abspielen" />
 
         <div className="map-legend">
           {mode === "art" && (
@@ -147,7 +155,8 @@ export function MapPage({ cantonId }: { cantonId?: string }) {
             <p className="eyebrow">Schweizerkarte</p>
             <h1 className="h2">Wähle einen Kanton</h1>
             <p className="lead" style={{ fontSize: 17 }}>
-              Klicke auf die Karte oder wähle aus der Liste. Jeder Kanton öffnet eine eigene Ausstellung mit Wörtern, Aufnahmen und einem Klangmotiv.
+              Tippe auf einen Kanton auf der Karte, um sein Klangmotiv zu hören – nochmals tippen stoppt die Musik. Die ausführliche Ausstellung mit
+              Wörtern und Aufnahmen öffnest du über die Liste.
             </p>
             {groups.map((l) => {
               const list = CANTONS.filter((c) => c.languages[0] === l || (l === "rm" && c.languages.includes("rm")));

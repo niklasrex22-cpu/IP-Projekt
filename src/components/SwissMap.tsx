@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useImperativeHandle, useRef, useState, type Ref } from "react";
 import { BORDERS_PATH, COUNTRY_PATH, LAKE_PATHS, MAP_HEIGHT, MAP_WIDTH, SHAPES, SHAPE_BY_ID, SMALL_AREA, labelPoint, type CantonShape } from "../data/geo";
 import { LANGUAGE_LABEL } from "../data/types";
-import { audio } from "../audio/engine";
+import { audio, usePlayback } from "../audio/engine";
 import { assetUrl, useReducedMotion } from "../lib/hooks";
 
 export type MapMode = "art" | "geo" | "wappen";
@@ -21,6 +21,8 @@ interface Props {
   interactive?: boolean;
   /** Startseite: dezente pulsierende Klangpunkte */
   ambient?: boolean;
+  /** Text im Tooltip, was ein Tipp bewirkt */
+  tapHint?: string;
   /** Automatisch auf den ausgewählten Kanton fokussieren */
   autoFocus?: boolean;
   className?: string;
@@ -83,6 +85,7 @@ export function SwissMap({
   autoFocus = true,
   className = "",
   ariaLabel = "Interaktive Karte der Schweiz mit 26 Kantonen",
+  tapHint,
   handleRef,
 }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -90,8 +93,11 @@ export function SwissMap({
   const rippleRef = useRef<SVGGElement>(null);
   const vb = useRef<VB>({ ...FULL });
   const anim = useRef(0);
+  const kRef = useRef(1);
   const reduced = useReducedMotion();
-  const [hover, setHover] = useState<{ id: string; x: number; y: number } | null>(null);
+  const [hover, setHover] = useState<{ id: string; x: number; y: number; sx?: number; sy?: number } | null>(null);
+  const pb = usePlayback();
+  const [k, setK] = useState(1);
   const drag = useRef<{ id: number; x: number; y: number; vb: VB; moved: boolean } | null>(null);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const pinch = useRef<{ d: number; vb: VB; cx: number; cy: number } | null>(null);
@@ -105,6 +111,7 @@ export function SwissMap({
     svg.setAttribute("viewBox", `${v.x.toFixed(2)} ${v.y.toFixed(2)} ${v.w.toFixed(2)} ${v.h.toFixed(2)}`);
     const k = v.w / MAP_WIDTH;
     svg.style.setProperty("--k", String(k));
+    kRef.current = k;
     svg.querySelectorAll<SVGCircleElement>("circle.hit").forEach((c) => c.setAttribute("r", String(10 * k)));
     svg.querySelectorAll<SVGImageElement>("image.map-wappen").forEach((img) => {
       const base = Number(img.dataset.base);
@@ -323,7 +330,11 @@ export function SwissMap({
   const showHover = (id: string, e: React.PointerEvent | React.FocusEvent) => {
     if (drag.current?.moved) return;
     const wrap = wrapRef.current!.getBoundingClientRect();
-    if ("clientX" in e) setHover({ id, x: e.clientX - wrap.left, y: e.clientY - wrap.top });
+    setK(kRef.current);
+    if ("clientX" in e) {
+      const p = toSvg(e.clientX, e.clientY);
+      setHover({ id, x: e.clientX - wrap.left, y: e.clientY - wrap.top, sx: p.x, sy: p.y });
+    }
     else {
       const r = (e.target as Element).getBoundingClientRect();
       setHover({ id, x: r.left + r.width / 2 - wrap.left, y: r.top - wrap.top });
@@ -331,6 +342,8 @@ export function SwissMap({
   };
 
   const hasSel = !!selectedId || marked.length > 0;
+  const playingId = pb.playing ? pb.cantonId : null;
+  const liftIds = [playingId, hover?.id].filter((x, i, a): x is string => !!x && a.indexOf(x) === i);
   const hovered = hover ? SHAPE_BY_ID[hover.id] : null;
   const sorted = [...SHAPES].sort((a, b) => b.area - a.area); // kleine Kantone oben → klickbar
 
@@ -383,6 +396,9 @@ export function SwissMap({
               </pattern>
             );
           })}
+          <filter id="lift-blur" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="5" />
+          </filter>
           <filter id="lift" x="-20%" y="-20%" width="140%" height="140%">
             <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#1d1a17" floodOpacity=".35" />
           </filter>
@@ -407,7 +423,7 @@ export function SwissMap({
                 role={interactive ? "button" : undefined}
                 tabIndex={interactive ? 0 : -1}
                 aria-label={interactive ? label : undefined}
-                aria-pressed={interactive ? sel : undefined}
+                aria-pressed={interactive ? sel || playingId === c.id : undefined}
                 onClick={() => select(c.id)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -486,6 +502,34 @@ export function SwissMap({
           </g>
         )}
 
+        {/* 3D-Anhebung: gehoverter Kanton steigt zum Zeiger auf, spielender Kanton bleibt angehoben */}
+        {interactive &&
+          liftIds.map((id) => {
+            const s = SHAPE_BY_ID[id];
+            if (!s) return null;
+            const isHover = hover?.id === id;
+            let tx = 0;
+            let ty = 0;
+            if (isHover && hover?.sx !== undefined && hover.sy !== undefined) {
+              const lim = 7 * k;
+              tx = Math.max(-lim, Math.min(lim, (hover.sx - s.centroid[0]) * 0.08));
+              ty = Math.max(-lim, Math.min(lim, (hover.sy - s.centroid[1]) * 0.08));
+            }
+            return (
+              <Lifted
+                key={id}
+                s={s}
+                mode={mode}
+                k={k}
+                tx={tx}
+                ty={ty}
+                height={(isHover ? 16 : 11) * k}
+                playing={pb.playing && pb.cantonId === id}
+                pattern={PATTERN_OF[id] ?? PATTERNS[s.canton.bfs % PATTERNS.length]}
+              />
+            );
+          })}
+
         <g ref={rippleRef} className="ripples" aria-hidden="true" />
       </svg>
 
@@ -499,9 +543,58 @@ export function SwissMap({
             <span>
               {hovered.canton.abbreviation} · {hovered.canton.languages.map((l) => LANGUAGE_LABEL[l]).join(", ")}
             </span>
+            {tapHint && <em className="tip-hint">{pb.playing && pb.cantonId === hovered.canton.id ? "♪ läuft – tippen zum Stoppen" : tapHint}</em>}
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+/** Pseudo-3D: Seitenwände aus gestapelten, abgedunkelten Kopien + aufgehellte Deckfläche. */
+function Lifted({
+  s,
+  mode,
+  k,
+  tx,
+  ty,
+  height,
+  playing,
+  pattern,
+}: {
+  s: CantonShape;
+  mode: MapMode;
+  k: number;
+  tx: number;
+  ty: number;
+  height: number;
+  playing: boolean;
+  pattern: string;
+}) {
+  const N = 8;
+  const c = s.canton;
+  const t = (f: number) => ({ transform: `translate(${(tx * f).toFixed(2)}px, ${(ty * f - height * f).toFixed(2)}px)` });
+  const base = Math.max(14, Math.min(34, Math.sqrt(s.area) * 0.28)) * Math.pow(k, 0.75);
+  return (
+    <g className={`lifted ${playing ? "is-playing" : ""}`} style={{ ["--c" as string]: c.color }} aria-hidden="true" pointerEvents="none">
+      <path className="lift-shadow" d={s.d} filter="url(#lift-blur)" style={{ transform: `translate(${(tx * 0.4 + 3 * k).toFixed(2)}px, ${(ty * 0.4 + 9 * k).toFixed(2)}px)` }} />
+      {Array.from({ length: N }, (_, i) => (
+        <path key={i} className="lift-side" d={s.d} style={{ ...t((i + 1) / (N + 1)), ["--i" as string]: i }} />
+      ))}
+      <g className="lift-top" style={t(1)}>
+        <path className="top-fill" d={s.d} />
+        {mode === "art" && c.languages.length > 1 && <path className="multi" d={s.d} fill={`url(#p-ml-${c.id})`} />}
+        {mode === "art" && <path className="texture" d={s.d} fill={`url(#p-${pattern})`} />}
+        <path className="top-edge" d={s.d} />
+        {mode === "wappen" && c.coatOfArms && (
+          <image href={assetUrl(c.coatOfArms)} x={s.centroid[0] - base / 2} y={s.centroid[1] - base / 2} width={base} height={base} style={{ imageRendering: "pixelated" }} />
+        )}
+        {mode === "geo" && (
+          <text className="lift-label" x={s.centroid[0]} y={s.centroid[1]}>
+            {c.abbreviation}
+          </text>
+        )}
+      </g>
+    </g>
   );
 }

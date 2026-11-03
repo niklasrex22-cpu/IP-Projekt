@@ -579,3 +579,79 @@
     gap: 4px;
   }
 }
+
+/* ==========================================================================
+   3D-Anhebung (Hover & spielender Kanton)
+   ========================================================================== */
+.swiss-map .lifted path,
+.swiss-map .lifted .lift-top {
+  transition: transform 0.28s var(--ease);
+  animation: lift-in 0.42s var(--ease) backwards;
+}
+@keyframes lift-in {
+  from {
+    transform: translate(0, 0);
+  }
+}
+.swiss-map .lift-shadow {
+  fill: #1d1a17;
+  opacity: 0.32;
+}
+.swiss-map .lift-side {
+  fill: color-mix(in srgb, var(--c) 62%, #1d1a17);
+  stroke: color-mix(in srgb, var(--c) 45%, #1d1a17);
+  stroke-width: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+.swiss-map .lift-top .top-fill {
+  fill: color-mix(in srgb, var(--c) 78%, #ffffff);
+}
+.swiss-map .lifted.is-playing .lift-top .top-fill {
+  fill: color-mix(in srgb, var(--c) 88%, #fff6c8);
+}
+.swiss-map.mode-geo .lift-top .top-fill,
+.swiss-map.mode-wappen .lift-top .top-fill {
+  fill: color-mix(in srgb, var(--c) 55%, #ffffff);
+}
+.swiss-map .lift-top .texture {
+  opacity: 0.6;
+}
+.swiss-map .lift-top .multi {
+  opacity: 0.42;
+}
+.swiss-map .lift-top .top-edge {
+  fill: none;
+  stroke: #ffffff;
+  stroke-opacity: 0.9;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.swiss-map .lifted.is-playing .lift-top .top-edge {
+  stroke: var(--ink);
+  stroke-width: 2.2;
+}
+.swiss-map .lift-label {
+  font-family: var(--font-text);
+  font-weight: 700;
+  font-size: calc(var(--k) * 13px);
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--ink);
+}
+.map-tip .tip-hint {
+  display: block;
+  margin-top: 3px;
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--c, #e8553a) 40%, #ffffff);
+  opacity: 0.95;
+}
+@media (prefers-reduced-motion: reduce) {
+  .swiss-map .lifted path,
+  .swiss-map .lifted .lift-top {
+    animation: none;
+    transition: none;
+  }
+}
