@@ -94,53 +94,48 @@ svg text{fill:var(--muted);font-size:11px}
 const FEE = 50, START = 10000, ROUNDS = 8, CREDIT_MAX = 5000, RATE = 0.10, MAXP = 300, INFL = 0.02;
 
 const ASSETS = [
-  {id:'spar',    name:'Sparkonto',      color:'#64748b', fixed:1, desc:'Sicher, aber kaum Rendite – Inflation frisst den Gewinn.'},
-  {id:'obli',    name:'Obligationen',   color:'#2563eb', die:[3,3,3,4,4,-50], desc:'Fixer Zins, kleines Ausfallrisiko des Schuldners.'},
-  {id:'etf',     name:'ETF / Indexfonds', color:'#0d9488', die:[-10,-5,5,8,10,12], desc:'Breit gestreut, schwankt mässig, langfristig solide.'},
-  {id:'tech',    name:'Aktie Tech',     color:'#7c3aed', die:[-25,-10,0,10,20,35], desc:'Höhere Chance, höheres Risiko – Branche Technologie.', stock:1},
-  {id:'pharma',  name:'Aktie Pharma',   color:'#db2777', die:[-25,-10,0,10,20,35], desc:'Höhere Chance, höheres Risiko – Branche Gesundheit.', stock:1},
-  {id:'energie', name:'Aktie Energie',  color:'#ea580c', die:[-25,-10,0,10,20,35], desc:'Höhere Chance, höheres Risiko – Branche Energie.', stock:1},
-  {id:'konsum',  name:'Aktie Konsum',   color:'#06b6d4', die:[-25,-10,0,10,20,35], desc:'Höhere Chance, höheres Risiko – Branche Konsumgüter.', stock:1},
-  {id:'gold',    name:'Gold',           color:'#ca8a04', die:[-8,-3,0,3,5,10], desc:'«Sicherer Hafen» – steigt oft in Krisen.'},
-  {id:'krypto',  name:'Krypto',         color:'#16a34a', die:[-60,-30,-10,20,60,150], desc:'Extreme Schwankung, Totalverlust möglich.'},
+  {id:'spar',   name:'Sparkonto',        color:'#64748b', fixed:1, desc:'Sicher, aber kaum Rendite – Inflation frisst den Gewinn.'},
+  {id:'etf',    name:'ETF / Indexfonds', color:'#0d9488', die:[-10,-5,5,8,10,12], desc:'Breit gestreut, schwankt mässig, langfristig solide.'},
+  {id:'aktie',  name:'Aktie',            color:'#7c3aed', die:[-25,-10,0,10,20,35], desc:'Eine einzelne Firma: höhere Chance, höheres Risiko.'},
+  {id:'krypto', name:'Krypto',           color:'#ea580c', die:[-60,-30,-10,20,60,150], desc:'Extreme Schwankung, Totalverlust möglich.'},
 ];
 const A = Object.fromEntries(ASSETS.map(a=>[a.id,a]));
 const NEWS = [
-  {t:'Zinserhöhung der Nationalbank', fx:{obli:2, etf:-5, tech:-10, pharma:-10, energie:-10, konsum:-10}},
-  {t:'Nationalbank senkt die Zinsen', fx:{obli:-2, etf:5, tech:8, pharma:8, energie:8, konsum:8}},
-  {t:'Durchbruch bei KI', fx:{tech:30, etf:3}},
-  {t:'Riesiges Datenleck bei Tech-Konzern', fx:{tech:-20}},
-  {t:'Neues Medikament zugelassen', fx:{pharma:25}},
-  {t:'Studie stoppt Hoffnungsträger-Medikament', fx:{pharma:-20}},
-  {t:'Ölpreis schiesst in die Höhe', fx:{energie:20, etf:-3}},
-  {t:'Ölschwemme: Preise im Keller', fx:{energie:-20}},
-  {t:'Weltweite Rezession', fx:{etf:-15, tech:-15, pharma:-5, energie:-15, konsum:-10, gold:10, krypto:-20}},
-  {t:'Wirtschaftsboom', fx:{etf:10, tech:10, pharma:5, energie:10, konsum:10, gold:-5}},
+  {t:'Zinserhöhung der Nationalbank', fx:{etf:-5, aktie:-10}},
+  {t:'Nationalbank senkt die Zinsen', fx:{etf:5, aktie:8}},
+  {t:'Durchbruch bei KI', fx:{aktie:25, etf:3}},
+  {t:'Riesiges Datenleck bei der Firma', fx:{aktie:-20}},
+  {t:'Neues Produkt wird zum Verkaufshit', fx:{aktie:20}},
+  {t:'Firmenchef tritt nach Skandal zurück', fx:{aktie:-15}},
+  {t:'Weltweite Rezession', fx:{etf:-15, aktie:-15, krypto:-20}},
+  {t:'Wirtschaftsboom', fx:{etf:10, aktie:10}},
   {t:'Grossland verbietet Kryptowährungen', fx:{krypto:-40}},
   {t:'Erster Krypto-ETF bewilligt', fx:{krypto:50}},
   {t:'Krypto-Börse gehackt', fx:{krypto:-30}},
-  {t:'Geopolitische Krise', fx:{gold:15, etf:-8, energie:10, tech:-8}},
-  {t:'Inflation steigt stark', fx:{gold:8, obli:-3, etf:-5, konsum:-10}},
+  {t:'Geopolitische Krise', fx:{etf:-8, aktie:-8, krypto:-10}},
+  {t:'Inflation steigt stark', fx:{etf:-5, aktie:-5, krypto:10}},
   {t:'Ruhiges Börsenjahr', fx:{}},
-  {t:'Rekord im Weihnachtsgeschäft', fx:{konsum:15}},
-  {t:'Rating von Staatsanleihen herabgestuft', fx:{obli:-5}},
-  {t:'Pandemie bricht aus', fx:{pharma:20, etf:-10, energie:-15, tech:5}},
-  {t:'Förderprogramm für die Energiewende', fx:{energie:15}},
-  {t:'Weltweiter Chipmangel', fx:{tech:-15}},
-  {t:'Zentralbanken kaufen Gold', fx:{gold:10}},
+  {t:'Sommerflaute an der Börse', fx:{}},
+  {t:'Pandemie bricht aus', fx:{etf:-10, aktie:-15}},
+  {t:'Rekord-Quartalszahlen', fx:{aktie:15, etf:5}},
   {t:'Influencer-Hype um Kryptowährungen', fx:{krypto:40}},
-  {t:'Pharma-Skandal: Preisabsprachen aufgedeckt', fx:{pharma:-15}},
-  {t:'Starker Franken belastet Exporteure', fx:{etf:-5, pharma:-5, konsum:-5, gold:-3}},
-  {t:'Rekord-Quartalszahlen', fx:{etf:5, tech:10, pharma:5, energie:5, konsum:5}},
-  {t:'Bankenkrise', fx:{obli:-5, etf:-12, gold:12, krypto:10}},
-  {t:'Strenge neue Klimavorschriften', fx:{energie:-15, tech:5}},
-  {t:'Fusion von zwei Pharmariesen', fx:{pharma:15}},
-  {t:'Börsenblase platzt', fx:{tech:-25, krypto:-30, etf:-10}},
+  {t:'Starker Franken belastet Exporteure', fx:{etf:-5, aktie:-5}},
+  {t:'Bankenkrise', fx:{etf:-12, aktie:-10, krypto:10}},
+  {t:'Börsenblase platzt', fx:{aktie:-20, krypto:-30, etf:-10}},
+  {t:'Übernahmeangebot für die Firma', fx:{aktie:25}},
+  {t:'Gewinnwarnung der Firma', fx:{aktie:-15}},
+  {t:'Rekordhoch an den Weltbörsen', fx:{etf:8, aktie:5}},
+  {t:'Handelsstreit zwischen Grossmächten', fx:{etf:-8, aktie:-10}},
+  {t:'Grossbank empfiehlt Krypto', fx:{krypto:25}},
+  {t:'Krypto-Mining wird wegen Stromverbrauch eingeschränkt', fx:{krypto:-20}},
+  {t:'Firma zahlt Sonderdividende', fx:{aktie:10}},
+  {t:'Konkurrenz bringt besseres Produkt', fx:{aktie:-20}},
+  {t:'Pensionskassen investieren mehr in Aktien', fx:{etf:6, aktie:6}},
 ];
 
 const GOALS = [
   {id:'vorsorge',    name:'Vorsorge',      text:'Dein Vermögen fällt nie unter CHF 8\'000.', bonus:3000},
-  {id:'divers',      name:'Diversifiziert', text:'Am Ende in mindestens 4 Anlagen investiert (je mind. CHF 500).', bonus:2000},
+  {id:'divers',      name:'Diversifiziert', text:'Am Ende in alle 4 Anlagen investiert (je mind. CHF 500).', bonus:2000},
   {id:'schuldenfrei',name:'Schuldenfrei',  text:'Du nimmst während des ganzen Spiels nie einen Kredit auf.', bonus:2000},
   {id:'langfristig', name:'Langfristig',   text:'Am Ende hältst du eine Anlage seit mindestens 6 Jahren, ohne sie zu verkaufen.', bonus:2000},
   {id:'sparfuchs',   name:'Sparfuchs',     text:'Du zahlst insgesamt höchstens CHF 600 Gebühren (12 Transaktionen).', bonus:1500},
@@ -148,9 +143,9 @@ const GOALS = [
 ];
 
 const BOT_TYPES = {
-  vorsichtig:   {label:'Computer (vorsichtig)',  w:{spar:.25, obli:.3, etf:.25, konsum:.05, gold:.15}, herd:.8},
-  ausgewogen:   {label:'Computer (ausgewogen)',  w:{spar:.1, obli:.15, etf:.35, tech:.1, pharma:.05, energie:.05, konsum:.05, gold:.1, krypto:.05}, herd:.5},
-  risikofreudig:{label:'Computer (risikofreudig)', w:{etf:.2, tech:.2, pharma:.1, energie:.1, gold:.1, krypto:.3}, herd:.3},
+  vorsichtig:   {label:'Computer (vorsichtig)',    w:{spar:.5, etf:.4, aktie:.1}, herd:.8},
+  ausgewogen:   {label:'Computer (ausgewogen)',    w:{spar:.2, etf:.5, aktie:.2, krypto:.1}, herd:.5},
+  risikofreudig:{label:'Computer (risikofreudig)', w:{etf:.3, aktie:.4, krypto:.3}, herd:.3},
 };
 const PCOLORS = ['#0f766e','#7c3aed','#ea580c','#2563eb','#db2777','#ca8a04'];
 
@@ -243,7 +238,7 @@ function repay(p, amt){
   return '';
 }
 // Wer kein Bargeld hat, muss Anlagen verkaufen – egal zu welchem Kurs.
-const LIQ_ORDER = ['spar','obli','etf','gold','konsum','pharma','energie','tech','krypto'];
+const LIQ_ORDER = ['spar','etf','aktie','krypto'];
 function ensureCash(p){
   const notes = [];
   for (const id of LIQ_ORDER){
@@ -414,7 +409,7 @@ function viewSetup(){
       <div class="center">
         <div class="big">📈🎲</div>
         <h2 style="font-size:28px">Börsenfieber</h2>
-        <p class="muted" style="max-width:560px;margin:0 auto 6px">«Investiere dein Geld klug in sechs Anlagen – und überlebe Crashs, Hypes und das echte Leben, ohne dein Ziel aus den Augen zu verlieren.»</p>
+        <p class="muted" style="max-width:560px;margin:0 auto 6px">«Investiere dein Geld klug in vier Anlagen – und überlebe Crashs, Hypes und das echte Leben, ohne dein Ziel aus den Augen zu verlieren.»</p>
       </div>
       <h3 style="margin-top:20px">Mitspielende (1–6)</h3>
       <p class="muted" style="margin-top:0">Mehrere Menschen spielen abwechselnd am selben Gerät. Computer-Gegner machen die Panik-Regel spannender.</p>
@@ -435,7 +430,7 @@ function viewSetup(){
           <li>Alle starten mit <b>CHF 10'000</b> und spielen <b>8 Runden</b> (= 8 Jahre).</li>
           <li><b>Startinvestition:</b> Schon vor der ersten Nachrichtenkarte dürfen alle ihr Geld anlegen.</li>
           <li><b>Jede Runde:</b> 1. Nachricht aufdecken → 2. Handeln (jede Transaktion kostet CHF 50) → 3. Markt würfeln (Nachricht + Würfel) → 4. Panik-Regel.</li>
-          <li><b>Aktien:</b> Vier Firmen aus verschiedenen Branchen – Tech, Pharma, Energie und Konsum.</li>
+          <li><b>Vier Anlagen:</b> Sparkonto, ETF, Aktie und Krypto – von sicher bis extrem riskant.</li>
           <li><b>Panik-Regel:</b> Verkauft mehr als die Hälfte der Personen dieselbe Anlage, fällt ihr Kurs zusätzlich um 10 %.</li>
           <li><b>Halten lohnt sich:</b> Wer eine Anlage 3 Jahre nicht verkauft, erhält 5 % Bonus (Sparkonto ausgenommen).</li>
           <li><b>Kredit:</b> Bis CHF 5'000 leihen, 10 % Zins pro Jahr.</li>
@@ -488,7 +483,7 @@ function viewNews(){
     <h2>1 · Nachricht aufdecken</h2>
     ${newsBox()}
     <p class="muted">Diese Nachricht gilt für das ganze Jahr ${G.year}. Ihre Wirkung wird beim Würfeln zum Würfelergebnis addiert.
-    ${Object.keys(G.news.fx).some(id=>A[id].stock) && Object.keys(G.news.fx).filter(id=>A[id].stock).length<4 ? '<br><b>Branchen-Nachricht:</b> Wer verteilt hat, verliert weniger.' : ''}</p>
+    ${G.news.fx.aktie && !G.news.fx.etf ? '<br><b>Firmen-Nachricht:</b> Trifft nur die Einzelaktie – wer breit gestreut hat (ETF), verliert weniger.' : ''}</p>
     <button class="primary" onclick="act.startTrading()">Zum Handeln →</button>
   </div>
   ${standings()}`;
