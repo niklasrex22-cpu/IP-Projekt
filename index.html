@@ -100,30 +100,29 @@ const ASSETS = [
   {id:'tech',    name:'Aktie Tech',     color:'#7c3aed', die:[-25,-10,0,10,20,35], desc:'Höhere Chance, höheres Risiko – Branche Technologie.', stock:1},
   {id:'pharma',  name:'Aktie Pharma',   color:'#db2777', die:[-25,-10,0,10,20,35], desc:'Höhere Chance, höheres Risiko – Branche Gesundheit.', stock:1},
   {id:'energie', name:'Aktie Energie',  color:'#ea580c', die:[-25,-10,0,10,20,35], desc:'Höhere Chance, höheres Risiko – Branche Energie.', stock:1},
+  {id:'konsum',  name:'Aktie Konsum',   color:'#06b6d4', die:[-25,-10,0,10,20,35], desc:'Höhere Chance, höheres Risiko – Branche Konsumgüter.', stock:1},
   {id:'gold',    name:'Gold',           color:'#ca8a04', die:[-8,-3,0,3,5,10], desc:'«Sicherer Hafen» – steigt oft in Krisen.'},
   {id:'krypto',  name:'Krypto',         color:'#16a34a', die:[-60,-30,-10,20,60,150], desc:'Extreme Schwankung, Totalverlust möglich.'},
 ];
 const A = Object.fromEntries(ASSETS.map(a=>[a.id,a]));
-const STOCKS = {tech:-10, pharma:-10, energie:-10};
-
 const NEWS = [
-  {t:'Zinserhöhung der Nationalbank', fx:{obli:2, etf:-5, tech:-10, pharma:-10, energie:-10}},
-  {t:'Nationalbank senkt die Zinsen', fx:{obli:-2, etf:5, tech:8, pharma:8, energie:8}},
+  {t:'Zinserhöhung der Nationalbank', fx:{obli:2, etf:-5, tech:-10, pharma:-10, energie:-10, konsum:-10}},
+  {t:'Nationalbank senkt die Zinsen', fx:{obli:-2, etf:5, tech:8, pharma:8, energie:8, konsum:8}},
   {t:'Durchbruch bei KI', fx:{tech:30, etf:3}},
   {t:'Riesiges Datenleck bei Tech-Konzern', fx:{tech:-20}},
   {t:'Neues Medikament zugelassen', fx:{pharma:25}},
   {t:'Studie stoppt Hoffnungsträger-Medikament', fx:{pharma:-20}},
   {t:'Ölpreis schiesst in die Höhe', fx:{energie:20, etf:-3}},
   {t:'Ölschwemme: Preise im Keller', fx:{energie:-20}},
-  {t:'Weltweite Rezession', fx:{etf:-15, tech:-15, pharma:-5, energie:-15, gold:10, krypto:-20}},
-  {t:'Wirtschaftsboom', fx:{etf:10, tech:10, pharma:5, energie:10, gold:-5}},
+  {t:'Weltweite Rezession', fx:{etf:-15, tech:-15, pharma:-5, energie:-15, konsum:-10, gold:10, krypto:-20}},
+  {t:'Wirtschaftsboom', fx:{etf:10, tech:10, pharma:5, energie:10, konsum:10, gold:-5}},
   {t:'Grossland verbietet Kryptowährungen', fx:{krypto:-40}},
   {t:'Erster Krypto-ETF bewilligt', fx:{krypto:50}},
   {t:'Krypto-Börse gehackt', fx:{krypto:-30}},
   {t:'Geopolitische Krise', fx:{gold:15, etf:-8, energie:10, tech:-8}},
-  {t:'Inflation steigt stark', fx:{gold:8, obli:-3, etf:-5}},
+  {t:'Inflation steigt stark', fx:{gold:8, obli:-3, etf:-5, konsum:-10}},
   {t:'Ruhiges Börsenjahr', fx:{}},
-  {t:'Sommerflaute an der Börse', fx:{}},
+  {t:'Rekord im Weihnachtsgeschäft', fx:{konsum:15}},
   {t:'Rating von Staatsanleihen herabgestuft', fx:{obli:-5}},
   {t:'Pandemie bricht aus', fx:{pharma:20, etf:-10, energie:-15, tech:5}},
   {t:'Förderprogramm für die Energiewende', fx:{energie:15}},
@@ -131,22 +130,12 @@ const NEWS = [
   {t:'Zentralbanken kaufen Gold', fx:{gold:10}},
   {t:'Influencer-Hype um Kryptowährungen', fx:{krypto:40}},
   {t:'Pharma-Skandal: Preisabsprachen aufgedeckt', fx:{pharma:-15}},
-  {t:'Starker Franken belastet Exporteure', fx:{etf:-5, pharma:-5, gold:-3}},
-  {t:'Rekord-Quartalszahlen', fx:{etf:5, tech:10, pharma:5, energie:5}},
+  {t:'Starker Franken belastet Exporteure', fx:{etf:-5, pharma:-5, konsum:-5, gold:-3}},
+  {t:'Rekord-Quartalszahlen', fx:{etf:5, tech:10, pharma:5, energie:5, konsum:5}},
   {t:'Bankenkrise', fx:{obli:-5, etf:-12, gold:12, krypto:10}},
   {t:'Strenge neue Klimavorschriften', fx:{energie:-15, tech:5}},
   {t:'Fusion von zwei Pharmariesen', fx:{pharma:15}},
   {t:'Börsenblase platzt', fx:{tech:-25, krypto:-30, etf:-10}},
-];
-
-const EVENTS = [
-  {t:'Velo gestohlen', v:-800}, {t:'Ferienjob', v:1000}, {t:'Handy-Display kaputt', v:-600},
-  {t:'Geburtstagsgeld von Grosi', v:500}, {t:'Zahnarztrechnung', v:-1200}, {t:'Kleiner Lottogewinn', v:300},
-  {t:'Steuerrückerstattung', v:700}, {t:'Umzug in neue Wohnung', v:-1500}, {t:'Stipendium erhalten', v:1500},
-  {t:'Busse fürs Schwarzfahren', v:-250}, {t:'Kleine Erbschaft', v:2000}, {t:'Rollerreparatur', v:-1000},
-  {t:'Nachhilfe gegeben', v:800}, {t:'Neuer Laptop nötig', v:-1300}, {t:'Hochzeitsgeschenk für Freundin', v:-400},
-  {t:'Bonus im Lehrbetrieb', v:1200}, {t:'Weiterbildungskurs', v:-900}, {t:'Flohmarkt-Verkauf', v:400},
-  {t:'Franchise der Krankenkasse', v:-700}, {t:'Ein ruhiges Jahr – nichts passiert', v:0},
 ];
 
 const GOALS = [
@@ -159,8 +148,8 @@ const GOALS = [
 ];
 
 const BOT_TYPES = {
-  vorsichtig:   {label:'Computer (vorsichtig)',  w:{spar:.3, obli:.3, etf:.25, gold:.15}, herd:.8},
-  ausgewogen:   {label:'Computer (ausgewogen)',  w:{spar:.1, obli:.15, etf:.35, tech:.1, pharma:.1, energie:.05, gold:.1, krypto:.05}, herd:.5},
+  vorsichtig:   {label:'Computer (vorsichtig)',  w:{spar:.25, obli:.3, etf:.25, konsum:.05, gold:.15}, herd:.8},
+  ausgewogen:   {label:'Computer (ausgewogen)',  w:{spar:.1, obli:.15, etf:.35, tech:.1, pharma:.05, energie:.05, konsum:.05, gold:.1, krypto:.05}, herd:.5},
   risikofreudig:{label:'Computer (risikofreudig)', w:{etf:.2, tech:.2, pharma:.1, energie:.1, gold:.1, krypto:.3}, herd:.3},
 };
 const PCOLORS = ['#0f766e','#7c3aed','#ea580c','#2563eb','#db2777','#ca8a04'];
@@ -197,14 +186,15 @@ function newGame(){
     prices:Object.fromEntries(ASSETS.map(a=>[a.id,100])),
     hist:Object.fromEntries(ASSETS.map(a=>[a.id,[100]])),
     lastChange:{},
-    newsDeck:shuffle(NEWS), eventDeck:shuffle(EVENTS),
+    newsDeck:shuffle(NEWS),
     players:setupRows.map((r,i)=>({
       name:r.name.trim()||`Spieler ${i+1}`, type:r.type, color:PCOLORS[i],
       cash:START, shares:{}, hold:{}, debt:0, goal:goals[i], minNet:START,
-      everCredit:false, fees:0, sold:new Set(), hist:[START], turnLog:[], event:null,
+      everCredit:false, fees:0, sold:new Set(), hist:[START], turnLog:[],
     })),
   };
-  startYear();
+  // Startinvestition: Alle dürfen schon vor der ersten Nachrichtenkarte investieren.
+  act.startTrading();
 }
 
 function startYear(){
@@ -253,7 +243,7 @@ function repay(p, amt){
   return '';
 }
 // Wer kein Bargeld hat, muss Anlagen verkaufen – egal zu welchem Kurs.
-const LIQ_ORDER = ['spar','obli','etf','gold','pharma','energie','tech','krypto'];
+const LIQ_ORDER = ['spar','obli','etf','gold','konsum','pharma','energie','tech','krypto'];
 function ensureCash(p){
   const notes = [];
   for (const id of LIQ_ORDER){
@@ -274,26 +264,17 @@ function ensureCash(p){
 
 /* ============ Phasen ============ */
 const act = {};
-act.drawEvents = () => {
-  for (const p of G.players){
-    if (!G.eventDeck.length) G.eventDeck = shuffle(EVENTS);
-    const c = G.eventDeck.pop();
-    p.turnLog = [];
-    p.cash += c.v;
-    const notes = p.cash < 0 ? ensureCash(p) : [];
-    p.event = {card:c, notes};
-    updateMin(p);
-  }
-  G.phase = 'events'; render();
-};
-act.startTrading = () => { G.turn = -1; nextTurn(); };
+act.startTrading = () => { for (const p of G.players) p.turnLog = []; G.turn = -1; nextTurn(); };
 function nextTurn(){
   G.turn++;
   while (G.turn < G.players.length && G.players[G.turn].type !== 'human'){
     botTrade(G.players[G.turn]); G.turn++;
   }
   G.flash = ''; G.showGoal = false;
-  if (G.turn >= G.players.length){ G.phase = 'market'; G.rolling = false; }
+  if (G.turn >= G.players.length){
+    if (G.year === 0){ startYear(); return; }   // nach der Startinvestition: erste Nachricht
+    G.phase = 'market'; G.rolling = false;
+  }
   else G.phase = humans().length > 1 ? 'handover' : 'trade';
   render(); window.scrollTo(0,0);
 }
@@ -317,13 +298,13 @@ function botTrade(p){
     if (a.id==='spar' || posVal(p,a.id) <= 0) continue;
     if ((G.lastChange[a.id] ?? 0) <= -15 && Math.random() < T.herd) sell(p, a.id, Infinity);
   }
-  if (p.type==='risikofreudig' && G.year===1) borrow(p, 3000);
+  if (p.type==='risikofreudig' && G.year===0) borrow(p, 3000);
   if (p.type==='vorsichtig' && p.debt>0 && p.cash > p.debt+1000) repay(p, p.debt);
   const base = netWorth(p) + p.debt - 1000;
   for (const [id,w] of Object.entries(T.w)){
     if (G.prices[id] <= 0) continue;
     const diff = base*w - posVal(p,id);
-    if (diff >= 1000 && (G.year===1 || Math.random()<.5)){
+    if (diff >= 1000 && (G.year===0 || Math.random()<.5)){
       const amt = Math.min(Math.floor(diff/500)*500, Math.floor((p.cash-FEE-300)/500)*500);
       if (amt >= 500) buy(p, id, amt);
     } else if (diff <= -2500 && Math.random()<.4){
@@ -452,11 +433,13 @@ function viewSetup(){
         <summary>Spielregeln</summary>
         <ul class="rules">
           <li>Alle starten mit <b>CHF 10'000</b> und spielen <b>8 Runden</b> (= 8 Jahre).</li>
-          <li><b>Jede Runde:</b> 1. Nachricht aufdecken → 2. Lebensereignis ziehen → 3. Handeln (jede Transaktion kostet CHF 50) → 4. Markt würfeln (Nachricht + Würfel) → 5. Panik-Regel.</li>
+          <li><b>Startinvestition:</b> Schon vor der ersten Nachrichtenkarte dürfen alle ihr Geld anlegen.</li>
+          <li><b>Jede Runde:</b> 1. Nachricht aufdecken → 2. Handeln (jede Transaktion kostet CHF 50) → 3. Markt würfeln (Nachricht + Würfel) → 4. Panik-Regel.</li>
+          <li><b>Aktien:</b> Vier Firmen aus verschiedenen Branchen – Tech, Pharma, Energie und Konsum.</li>
           <li><b>Panik-Regel:</b> Verkauft mehr als die Hälfte der Personen dieselbe Anlage, fällt ihr Kurs zusätzlich um 10 %.</li>
           <li><b>Halten lohnt sich:</b> Wer eine Anlage 3 Jahre nicht verkauft, erhält 5 % Bonus (Sparkonto ausgenommen).</li>
           <li><b>Kredit:</b> Bis CHF 5'000 leihen, 10 % Zins pro Jahr.</li>
-          <li><b>Kein Bargeld?</b> Dann werden Anlagen automatisch verkauft – egal zu welchem Kurs.</li>
+          <li><b>Kein Bargeld für die Kreditzinsen?</b> Dann werden Anlagen automatisch verkauft – egal zu welchem Kurs.</li>
           <li>Kurse bewegen sich zwischen 0 % und 300 % (Start: 100 %). Fällt ein Kurs auf 0, ist die Anlage wertlos.</li>
           <li><b>Ende:</b> Alles wird verkauft, Kredite zurückbezahlt. Punkte = Endvermögen + Bonus fürs geheime Anlageziel. Wer Schulden hat, scheidet aus.</li>
         </ul>
@@ -505,26 +488,10 @@ function viewNews(){
     <h2>1 · Nachricht aufdecken</h2>
     ${newsBox()}
     <p class="muted">Diese Nachricht gilt für das ganze Jahr ${G.year}. Ihre Wirkung wird beim Würfeln zum Würfelergebnis addiert.
-    ${Object.keys(G.news.fx).some(id=>A[id].stock) && Object.keys(G.news.fx).filter(id=>A[id].stock).length<3 ? '<br><b>Branchen-Nachricht:</b> Wer verteilt hat, verliert weniger.' : ''}</p>
-    <button class="primary" onclick="act.drawEvents()">Lebensereignisse ziehen →</button>
+    ${Object.keys(G.news.fx).some(id=>A[id].stock) && Object.keys(G.news.fx).filter(id=>A[id].stock).length<4 ? '<br><b>Branchen-Nachricht:</b> Wer verteilt hat, verliert weniger.' : ''}</p>
+    <button class="primary" onclick="act.startTrading()">Zum Handeln →</button>
   </div>
   ${standings()}`;
-}
-function viewEvents(){
-  return `<div class="card">
-    <h2>2 · Lebensereignisse</h2>
-    <div class="tablewrap"><table>
-      <tr><th>Person</th><th>Ereignis</th><th class="r">Betrag</th><th>Folgen</th></tr>
-      ${G.players.map(p=>`<tr>
-        <td><span class="dot" style="background:${p.color}"></span>${esc(p.name)}</td>
-        <td>${esc(p.event.card.t)}</td>
-        <td class="r num ${cls(p.event.card.v)}">${p.event.card.v?(p.event.card.v>0?'+':'')+chf(p.event.card.v):'–'}</td>
-        <td class="${p.event.notes.length?'neg':'muted'}" style="font-size:13px">${p.event.notes.length?esc(p.event.notes.join(', ')):'–'}</td>
-      </tr>`).join('')}
-    </table></div>
-    <p class="muted">Tipp: Etwas Bargeld als Reserve schützt vor Zwangsverkäufen zum schlechten Kurs.</p>
-    <button class="primary" onclick="act.startTrading()">Zum Handeln →</button>
-  </div>`;
 }
 function viewHandover(){
   const p = cur();
@@ -544,7 +511,7 @@ function viewTrade(){
   const p = cur(), net = netWorth(p);
   const amts = [500,1000,2000,5000];
   return `<div class="card">
-    <div class="between"><h2 style="margin:0">3 · Handeln: <span style="color:${p.color}">${esc(p.name)}</span></h2>
+    <div class="between"><h2 style="margin:0">${G.year===0?'Startinvestition':'2 · Handeln'}: <span style="color:${p.color}">${esc(p.name)}</span></h2>
       <button class="primary" onclick="act.endTurn()">Fertig ✓</button></div>
     <div class="stats">
       <div class="stat"><div class="l">Bargeld</div><div class="v ${p.cash<0?'neg':''}">${chf(p.cash)}</div></div>
@@ -553,7 +520,7 @@ function viewTrade(){
       <div class="stat"><div class="l">Vermögen</div><div class="v">${chf(net)}</div></div>
     </div>
     ${goalCard(p)}
-    ${newsBox()}
+    ${G.year===0 ? `<div class="news"><div class="kicker">Vor dem ersten Jahr</div><div class="head">Lege dein Startkapital an</div><span class="muted">Noch ist keine Nachricht bekannt – verteile dein Geld nach deiner Strategie. Danach wird die erste Nachrichtenkarte aufgedeckt.</span></div>` : newsBox()}
     <div class="row" style="margin:6px 0 4px">
       <span class="muted">Betrag:</span>
       ${amts.map(a=>`<button class="small chip ${G.amt===a?'on':''}" onclick="act.setAmt(${a})">${fmt(a)}</button>`).join('')}
@@ -602,7 +569,7 @@ function viewMarket(){
     </tr>`;}).join('');
   const panicked = ASSETS.filter(a=>res ? res.find(x=>x.id===a.id).panic : panicFor(a.id));
   return `<div class="card">
-    <h2>4 · Markt würfeln${res?' – Ergebnis':''}</h2>
+    <h2>3 · Markt würfeln${res?' – Ergebnis':''}</h2>
     ${panicked.length?`<div class="flash">😱 <b>Herdentrieb!</b> Mehr als die Hälfte hat ${panicked.map(a=>a.name).join(', ')} verkauft – zusätzlich −10 %.</div>`:''}
     <div class="tablewrap"><table>
       <tr><th>Anlage</th><th class="r">Nachricht</th><th class="r">Würfel</th><th class="r">Panik</th><th class="r">Total</th><th class="r">Kurs</th></tr>
@@ -684,15 +651,14 @@ function viewEnd(){
 }
 
 /* ============ Render ============ */
-const PHASES = ['Nachricht','Ereignisse','Handeln','Markt'];
+const PHASES = ['Nachricht','Handeln','Markt'];
 function render(){
   const app = $('#app');
   if (!G){ app.innerHTML = `<header class="top"><h1>📈 Börsenfieber</h1></header>` + viewSetup(); return; }
-  const idx = {news:0, events:1, handover:2, trade:2, market:3}[G.phase];
+  const idx = {news:0, handover:1, trade:1, market:2}[G.phase];
   let main = '';
   switch (G.phase){
     case 'news': main = viewNews(); break;
-    case 'events': main = viewEvents(); break;
     case 'handover': main = viewHandover(); break;
     case 'trade': main = viewTrade(); break;
     case 'market': main = viewMarket(); break;
@@ -700,7 +666,7 @@ function render(){
   }
   app.innerHTML = `<header class="top">
       <h1>📈 Börsenfieber</h1>
-      <div class="yr">${G.phase==='end'?'Spielende':`Jahr <b>${G.year}</b> / ${ROUNDS} · ${PHASES.map((n,i)=>i===idx?`<b style="color:var(--accent)">${n}</b>`:n).join(' › ')}`}</div>
+      <div class="yr">${G.phase==='end'?'Spielende':G.year===0?'Startinvestition':`Jahr <b>${G.year}</b> / ${ROUNDS} · ${PHASES.map((n,i)=>i===idx?`<b style="color:var(--accent)">${n}</b>`:n).join(' › ')}`}</div>
     </header>
     <div class="wrap"><div class="grid"><main>${main}</main>${G.phase==='handover'?'':viewBoard()}</div></div>`;
 }
