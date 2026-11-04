@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Börsenfieber</title>
+<style>
+:root{
+  --bg:#f4f2ec; --surface:#ffffff; --surface2:#efece4; --text:#1c1c1e; --muted:#6a6a70;
+  --border:#e0dcd2; --accent:#0f766e; --accent-ink:#ffffff; --accent-soft:#d8efec;
+  --pos:#15803d; --neg:#b91c1c; --warn:#b45309; --warn-soft:#fdf0dc;
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121314; --surface:#1c1d20; --surface2:#26272b; --text:#ececee; --muted:#9b9ba3;
+    --border:#33343a; --accent:#2dd4bf; --accent-ink:#06201d; --accent-soft:#163b37;
+    --pos:#4ade80; --neg:#f87171; --warn:#fbbf24; --warn-soft:#3a2d12;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121314; --surface:#1c1d20; --surface2:#26272b; --text:#ececee; --muted:#9b9ba3;
+  --border:#33343a; --accent:#2dd4bf; --accent-ink:#06201d; --accent-soft:#163b37;
+  --pos:#4ade80; --neg:#f87171; --warn:#fbbf24; --warn-soft:#3a2d12;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:7px 12px}
+button:hover:not(:disabled){border-color:var(--accent)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600;padding:10px 18px}
+button.small{padding:4px 9px;font-size:13px}
+button.chip.on{background:var(--accent-soft);border-color:var(--accent)}
+input,select{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 9px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--surface)}
+header.top h1{font-size:19px;margin:0;letter-spacing:-.01em}
+header.top .yr{color:var(--muted);font-variant-numeric:tabular-nums}
+.wrap{max-width:1240px;margin:0 auto;padding:20px 16px 40px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
+@media (max-width:920px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+.card+.card{margin-top:16px}
+h2{font-size:20px;margin:0 0 12px;letter-spacing:-.01em}
+h3{font-size:15px;margin:0 0 8px}
+.muted{color:var(--muted)}
+.pos{color:var(--pos)} .neg{color:var(--neg)}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--border);vertical-align:middle}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600}
+td.r,th.r{text-align:right}
+.tablewrap{overflow-x:auto}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:middle}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.between{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
+.stat{background:var(--surface2);border-radius:10px;padding:10px 12px}
+.stat .l{font-size:12px;color:var(--muted)}
+.stat .v{font-size:19px;font-weight:650;font-variant-numeric:tabular-nums}
+.news{border-left:5px solid var(--accent);background:var(--surface2);border-radius:10px;padding:16px 18px;margin:8px 0 14px}
+.news .kicker{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.news .head{font-size:22px;font-weight:700;margin:4px 0 6px;letter-spacing:-.01em}
+.fx{display:inline-block;padding:2px 8px;border-radius:999px;font-size:13px;background:var(--surface);border:1px solid var(--border);margin:3px 4px 0 0}
+.goal{border:1px dashed var(--accent);border-radius:12px;padding:12px 14px;background:var(--accent-soft)}
+.goal.hidden{background:var(--surface2);border-color:var(--border);cursor:pointer;text-align:center}
+.flash{padding:9px 12px;border-radius:8px;background:var(--warn-soft);color:var(--warn);margin:10px 0}
+.die{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:30px;padding:0 6px;border-radius:7px;border:2px solid var(--border);font-weight:700;font-variant-numeric:tabular-nums;background:var(--surface)}
+.board-row{padding:9px 0;border-bottom:1px solid var(--border)}
+.board-row:last-child{border-bottom:0}
+.bar{height:7px;background:var(--surface2);border-radius:99px;overflow:hidden;margin-top:5px;position:relative}
+.bar i{display:block;height:100%;border-radius:99px}
+.bar b{position:absolute;left:33.33%;top:-2px;bottom:-2px;width:1px;background:var(--muted);opacity:.6}
+.faces{font-size:11px;color:var(--muted);margin-top:3px}
+.center{text-align:center}
+.big{font-size:42px;margin:6px 0}
+details summary{cursor:pointer;font-weight:600}
+details{margin-top:14px}
+.rules li{margin:3px 0}
+.log{font-size:13px;color:var(--muted);max-height:140px;overflow:auto;margin-top:8px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;margin-top:6px}
+.tag{font-size:11px;padding:1px 7px;border-radius:99px;background:var(--surface2);color:var(--muted);margin-left:6px}
+.panic{color:var(--neg);font-weight:600}
+svg text{fill:var(--muted);font-size:11px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+"use strict";
+/* ============ Konstanten & Daten ============ */
+const FEE = 50, START = 10000, ROUNDS = 8, CREDIT_MAX = 5000, RATE = 0.10, MAXP = 300, INFL = 0.02;
+
+const ASSETS = [
+  {id:'spar',    name:'Sparkonto',      color:'#64748b', fixed:1, desc:'Sicher, aber kaum Rendite – Inflation frisst den Gewinn.'},
+  {id:'obli',    name:'Obligationen',   color:'#2563eb', die:[3,3,3,4,4,-50], desc:'Fixer Zins, kleines Ausfallrisiko des Schuldners.'},
+  {id:'etf',     name:'ETF / Indexfonds', color:'#0d9488', die:[-10,-5,5,8,10,12], desc:'Breit gestreut, schwankt mässig, langfristig solide.'},
+  {id:'tech',    name:'Aktie Tech',     color:'#7c3aed', die:[-25,-10,0,10,20,35], desc:'Höhere Chance, höheres Risiko – Branche Technologie.', stock:1},
+  {id:'pharma',  name:'Aktie Pharma',   color:'#db2777', die:[-25,-10,0,10,20,35], desc:'Höhere Chance, höheres Risiko – Branche Gesundheit.', stock:1},
+  {id:'energie', name:'Aktie Energie',  color:'#ea580c', die:[-25,-10,0,10,20,35], desc:'Höhere Chance, höheres Risiko – Branche Energie.', stock:1},
+  {id:'gold',    name:'Gold',           color:'#ca8a04', die:[-8,-3,0,3,5,10], desc:'«Sicherer Hafen» – steigt oft in Krisen.'},
+  {id:'krypto',  name:'Krypto',         color:'#16a34a', die:[-60,-30,-10,20,60,150], desc:'Extreme Schwankung, Totalverlust möglich.'},
+];
+const A = Object.fromEntries(ASSETS.map(a=>[a.id,a]));
+const STOCKS = {tech:-10, pharma:-10, energie:-10};
+
+const NEWS = [
+  {t:'Zinserhöhung der Nationalbank', fx:{obli:2, etf:-5, tech:-10, pharma:-10, energie:-10}},
+  {t:'Nationalbank senkt die Zinsen', fx:{obli:-2, etf:5, tech:8, pharma:8, energie:8}},
+  {t:'Durchbruch bei KI', fx:{tech:30, etf:3}},
+  {t:'Riesiges Datenleck bei Tech-Konzern', fx:{tech:-20}},
+  {t:'Neues Medikament zugelassen', fx:{pharma:25}},
+  {t:'Studie stoppt Hoffnungsträger-Medikament', fx:{pharma:-20}},
+  {t:'Ölpreis schiesst in die Höhe', fx:{energie:20, etf:-3}},
+  {t:'Ölschwemme: Preise im Keller', fx:{energie:-20}},
+  {t:'Weltweite Rezession', fx:{etf:-15, tech:-15, pharma:-5, energie:-15, gold:10, krypto:-20}},
+  {t:'Wirtschaftsboom', fx:{etf:10, tech:10, pharma:5, energie:10, gold:-5}},
+  {t:'Grossland verbietet Kryptowährungen', fx:{krypto:-40}},
+  {t:'Erster Krypto-ETF bewilligt', fx:{krypto:50}},
+  {t:'Krypto-Börse gehackt', fx:{krypto:-30}},
+  {t:'Geopolitische Krise', fx:{gold:15, etf:-8, energie:10, tech:-8}},
+  {t:'Inflation steigt stark', fx:{gold:8, obli:-3, etf:-5}},
+  {t:'Ruhiges Börsenjahr', fx:{}},
+  {t:'Sommerflaute an der Börse', fx:{}},
+  {t:'Rating von Staatsanleihen herabgestuft', fx:{obli:-5}},
+  {t:'Pandemie bricht aus', fx:{pharma:20, etf:-10, energie:-15, tech:5}},
+  {t:'Förderprogramm für die Energiewende', fx:{energie:15}},
+  {t:'Weltweiter Chipmangel', fx:{tech:-15}},
+  {t:'Zentralbanken kaufen Gold', fx:{gold:10}},
+  {t:'Influencer-Hype um Kryptowährungen', fx:{krypto:40}},
+  {t:'Pharma-Skandal: Preisabsprachen aufgedeckt', fx:{pharma:-15}},
+  {t:'Starker Franken belastet Exporteure', fx:{etf:-5, pharma:-5, gold:-3}},
+  {t:'Rekord-Quartalszahlen', fx:{etf:5, tech:10, pharma:5, energie:5}},
+  {t:'Bankenkrise', fx:{obli:-5, etf:-12, gold:12, krypto:10}},
+  {t:'Strenge neue Klimavorschriften', fx:{energie:-15, tech:5}},
+  {t:'Fusion von zwei Pharmariesen', fx:{pharma:15}},
+  {t:'Börsenblase platzt', fx:{tech:-25, krypto:-30, etf:-10}},
+];
+
+const EVENTS = [
+  {t:'Velo gestohlen', v:-800}, {t:'Ferienjob', v:1000}, {t:'Handy-Display kaputt', v:-600},
+  {t:'Geburtstagsgeld von Grosi', v:500}, {t:'Zahnarztrechnung', v:-1200}, {t:'Kleiner Lottogewinn', v:300},
+  {t:'Steuerrückerstattung', v:700}, {t:'Umzug in neue Wohnung', v:-1500}, {t:'Stipendium erhalten', v:1500},
+  {t:'Busse fürs Schwarzfahren', v:-250}, {t:'Kleine Erbschaft', v:2000}, {t:'Rollerreparatur', v:-1000},
+  {t:'Nachhilfe gegeben', v:800}, {t:'Neuer Laptop nötig', v:-1300}, {t:'Hochzeitsgeschenk für Freundin', v:-400},
+  {t:'Bonus im Lehrbetrieb', v:1200}, {t:'Weiterbildungskurs', v:-900}, {t:'Flohmarkt-Verkauf', v:400},
+  {t:'Franchise der Krankenkasse', v:-700}, {t:'Ein ruhiges Jahr – nichts passiert', v:0},
+];
+
+const GOALS = [
+  {id:'vorsorge',    name:'Vorsorge',      text:'Dein Vermögen fällt nie unter CHF 8\'000.', bonus:3000},
+  {id:'divers',      name:'Diversifiziert', text:'Am Ende in mindestens 4 Anlagen investiert (je mind. CHF 500).', bonus:2000},
+  {id:'schuldenfrei',name:'Schuldenfrei',  text:'Du nimmst während des ganzen Spiels nie einen Kredit auf.', bonus:2000},
+  {id:'langfristig', name:'Langfristig',   text:'Am Ende hältst du eine Anlage seit mindestens 6 Jahren, ohne sie zu verkaufen.', bonus:2000},
+  {id:'sparfuchs',   name:'Sparfuchs',     text:'Du zahlst insgesamt höchstens CHF 600 Gebühren (12 Transaktionen).', bonus:1500},
+  {id:'wachstum',    name:'Wachstum',      text:'Dein Endvermögen beträgt mindestens CHF 15\'000.', bonus:2500},
+];
+
+const BOT_TYPES = {
+  vorsichtig:   {label:'Computer (vorsichtig)',  w:{spar:.3, obli:.3, etf:.25, gold:.15}, herd:.8},
+  ausgewogen:   {label:'Computer (ausgewogen)',  w:{spar:.1, obli:.15, etf:.35, tech:.1, pharma:.1, energie:.05, gold:.1, krypto:.05}, herd:.5},
+  risikofreudig:{label:'Computer (risikofreudig)', w:{etf:.2, tech:.2, pharma:.1, energie:.1, gold:.1, krypto:.3}, herd:.3},
+};
+const PCOLORS = ['#0f766e','#7c3aed','#ea580c','#2563eb','#db2777','#ca8a04'];
+
+/* ============ Hilfsfunktionen ============ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => { const r = Math.round(n); return (r<0?'−':'') + String(Math.abs(r)).replace(/\B(?=(\d{3})+(?!\d))/g, "'"); };
+const chf = n => 'CHF ' + fmt(n);
+const pct = (n, sign=true) => (n>0 && sign ? '+' : n<0 ? '−' : '') + Math.abs(Math.round(n*10)/10) + ' %';
+const cls = n => n>0 ? 'pos' : n<0 ? 'neg' : '';
+const rnd = n => Math.floor(Math.random()*n);
+const shuffle = arr => { const a = arr.slice(); for (let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];} return a; };
+const fxChips = fx => { const k = Object.keys(fx); return k.length ? k.map(id=>`<span class="fx"><span class="dot" style="background:${A[id].color}"></span>${A[id].name} <b class="${cls(fx[id])}">${pct(fx[id])}</b></span>`).join('') : '<span class="muted">Keine Auswirkungen auf die Kurse.</span>'; };
+
+/* ============ Spielzustand ============ */
+let G = null;
+let setupRows = [
+  {name:'Spieler 1', type:'human'},
+  {name:'Lea', type:'ausgewogen'},
+  {name:'Max', type:'risikofreudig'},
+];
+
+const posVal = (p,id) => (p.shares[id]||0) * G.prices[id];
+const invested = p => ASSETS.reduce((s,a)=>s+posVal(p,a.id),0);
+const netWorth = p => p.cash + invested(p) - p.debt;
+const updateMin = p => { p.minNet = Math.min(p.minNet, netWorth(p)); };
+const humans = () => G.players.filter(p=>p.type==='human');
+
+function newGame(){
+  const goals = shuffle(GOALS);
+  G = {
+    year:0, phase:'news', amt:1000, flash:'', showGoal:false, rolling:false, results:null,
+    prices:Object.fromEntries(ASSETS.map(a=>[a.id,100])),
+    hist:Object.fromEntries(ASSETS.map(a=>[a.id,[100]])),
+    lastChange:{},
+    newsDeck:shuffle(NEWS), eventDeck:shuffle(EVENTS),
+    players:setupRows.map((r,i)=>({
+      name:r.name.trim()||`Spieler ${i+1}`, type:r.type, color:PCOLORS[i],
+      cash:START, shares:{}, hold:{}, debt:0, goal:goals[i], minNet:START,
+      everCredit:false, fees:0, sold:new Set(), hist:[START], turnLog:[], event:null,
+    })),
+  };
+  startYear();
+}
+
+function startYear(){
+  G.year++;
+  G.news = G.newsDeck.pop();
+  G.results = null;
+  G.phase = 'news';
+  render();
+}
+
+/* ============ Transaktionen ============ */
+function buy(p, id, amt){
+  if (G.prices[id] <= 0) return 'Diese Anlage ist wertlos und kann nicht gekauft werden.';
+  if (amt <= 0) return 'Betrag muss grösser als 0 sein.';
+  if (p.cash < amt + FEE) return `Zu wenig Bargeld: Du brauchst ${chf(amt+FEE)} (inkl. ${chf(FEE)} Gebühr).`;
+  p.cash -= amt + FEE; p.fees += FEE;
+  if (!(p.shares[id] > 0)) p.hold[id] = 0;
+  p.shares[id] = (p.shares[id]||0) + amt / G.prices[id];
+  p.turnLog.push(`Kauf ${A[id].name}: ${chf(amt)} (+ ${chf(FEE)} Gebühr)`);
+  return '';
+}
+function sell(p, id, amt, forced=false){
+  const val = posVal(p,id);
+  if (val <= 0) return 'Du besitzt diese Anlage nicht.';
+  amt = Math.min(amt, val);
+  if (amt >= val - 0.5){ p.shares[id] = 0; amt = val; }
+  else p.shares[id] -= amt / G.prices[id];
+  p.cash += amt - FEE; p.fees += FEE;
+  p.hold[id] = 0;
+  p.sold.add(id);
+  p.turnLog.push(`${forced?'Zwangsverkauf':'Verkauf'} ${A[id].name}: ${chf(amt)} (− ${chf(FEE)} Gebühr)`);
+  return '';
+}
+function borrow(p, amt){
+  amt = Math.min(amt, CREDIT_MAX - p.debt);
+  if (amt <= 0) return `Kreditlimite von ${chf(CREDIT_MAX)} erreicht.`;
+  p.debt += amt; p.cash += amt; p.everCredit = true;
+  p.turnLog.push(`Kredit aufgenommen: ${chf(amt)}`);
+  return '';
+}
+function repay(p, amt){
+  amt = Math.min(amt, p.debt, Math.max(0,p.cash));
+  if (amt <= 0) return p.debt<=0 ? 'Du hast keinen Kredit.' : 'Zu wenig Bargeld zum Zurückzahlen.';
+  p.debt -= amt; p.cash -= amt;
+  p.turnLog.push(`Kredit zurückbezahlt: ${chf(amt)}`);
+  return '';
+}
+// Wer kein Bargeld hat, muss Anlagen verkaufen – egal zu welchem Kurs.
+const LIQ_ORDER = ['spar','obli','etf','gold','pharma','energie','tech','krypto'];
+function ensureCash(p){
+  const notes = [];
+  for (const id of LIQ_ORDER){
+    if (p.cash >= 0) break;
+    const val = posVal(p,id);
+    if (val <= 0) continue;
+    const need = -p.cash + FEE;
+    sell(p, id, Math.min(val, need), true);
+    notes.push(`Zwangsverkauf ${A[id].name}`);
+  }
+  if (p.cash < 0 && p.debt < CREDIT_MAX){
+    const a = Math.min(-p.cash, CREDIT_MAX - p.debt);
+    borrow(p, a); notes.push(`Notkredit ${chf(a)}`);
+  }
+  if (p.cash < 0){ p.everCredit = true; notes.push(`Überzug ${chf(-p.cash)} (Schulden!)`); }
+  return notes;
+}
+
+/* ============ Phasen ============ */
+const act = {};
+act.drawEvents = () => {
+  for (const p of G.players){
+    if (!G.eventDeck.length) G.eventDeck = shuffle(EVENTS);
+    const c = G.eventDeck.pop();
+    p.turnLog = [];
+    p.cash += c.v;
+    const notes = p.cash < 0 ? ensureCash(p) : [];
+    p.event = {card:c, notes};
+    updateMin(p);
+  }
+  G.phase = 'events'; render();
+};
+act.startTrading = () => { G.turn = -1; nextTurn(); };
+function nextTurn(){
+  G.turn++;
+  while (G.turn < G.players.length && G.players[G.turn].type !== 'human'){
+    botTrade(G.players[G.turn]); G.turn++;
+  }
+  G.flash = ''; G.showGoal = false;
+  if (G.turn >= G.players.length){ G.phase = 'market'; G.rolling = false; }
+  else G.phase = humans().length > 1 ? 'handover' : 'trade';
+  render(); window.scrollTo(0,0);
+}
+act.beginTurn = () => { G.phase = 'trade'; render(); };
+act.endTurn = () => { updateMin(G.players[G.turn]); nextTurn(); };
+const cur = () => G.players[G.turn];
+const doAct = msg => { G.flash = msg || ''; updateMin(cur()); render(); };
+act.setAmt = v => { G.amt = Math.max(0, Math.round(+v||0)); render(); };
+act.buy = id => doAct(buy(cur(), id, G.amt));
+act.sell = id => doAct(sell(cur(), id, G.amt));
+act.sellAll = id => doAct(sell(cur(), id, Infinity));
+act.borrow = () => doAct(borrow(cur(), G.amt));
+act.repay = () => doAct(repay(cur(), G.amt));
+act.toggleGoal = () => { G.showGoal = !G.showGoal; render(); };
+
+function botTrade(p){
+  p.turnLog = [];
+  const T = BOT_TYPES[p.type];
+  // Herdentrieb: nach einem Absturz verkaufen
+  for (const a of ASSETS){
+    if (a.id==='spar' || posVal(p,a.id) <= 0) continue;
+    if ((G.lastChange[a.id] ?? 0) <= -15 && Math.random() < T.herd) sell(p, a.id, Infinity);
+  }
+  if (p.type==='risikofreudig' && G.year===1) borrow(p, 3000);
+  if (p.type==='vorsichtig' && p.debt>0 && p.cash > p.debt+1000) repay(p, p.debt);
+  const base = netWorth(p) + p.debt - 1000;
+  for (const [id,w] of Object.entries(T.w)){
+    if (G.prices[id] <= 0) continue;
+    const diff = base*w - posVal(p,id);
+    if (diff >= 1000 && (G.year===1 || Math.random()<.5)){
+      const amt = Math.min(Math.floor(diff/500)*500, Math.floor((p.cash-FEE-300)/500)*500);
+      if (amt >= 500) buy(p, id, amt);
+    } else if (diff <= -2500 && Math.random()<.4){
+      sell(p, id, Math.floor(-diff/500)*500);
+    }
+  }
+  updateMin(p);
+}
+
+function sellersOf(id){ return G.players.filter(p=>p.sold.has(id)).length; }
+function panicFor(id){
+  const n = G.players.length;
+  return id!=='spar' && n>=2 && sellersOf(id) > n/2;
+}
+
+act.roll = () => {
+  if (G.rolling) return;
+  G.rolling = true; render();
+  const iv = setInterval(()=>{
+    for (const a of ASSETS){ if (!a.die) continue; const el = document.getElementById('die-'+a.id); if (el) el.textContent = pct(a.die[rnd(6)]); }
+  }, 70);
+  setTimeout(()=>{ clearInterval(iv); computeMarket(); G.rolling=false; render(); }, 1100);
+};
+
+function computeMarket(){
+  for (const p of G.players) p.netBefore = netWorth(p);
+  G.results = ASSETS.map(a=>{
+    const old = G.prices[a.id];
+    let news = 0, dice = null, panic = 0, change;
+    if (a.fixed){ change = a.fixed; }
+    else {
+      news = G.news.fx[a.id] || 0;
+      dice = a.die[rnd(6)];
+      panic = panicFor(a.id) ? -10 : 0;
+      change = news + dice + panic;
+    }
+    let nw = old <= 0 ? 0 : old * (1 + change/100);
+    nw = Math.min(MAXP, Math.max(0, nw));
+    if (nw < 1) nw = 0;
+    G.prices[a.id] = nw;
+    G.hist[a.id].push(nw);
+    G.lastChange[a.id] = old > 0 ? (nw/old - 1)*100 : 0;
+    return {id:a.id, old, news, dice, panic, change, nw, sellers:sellersOf(a.id)};
+  });
+  for (const p of G.players){
+    p.yearNotes = [];
+    // Kreditzinsen (10 %) – auch auf Überzug
+    const interest = Math.round(p.debt*RATE + Math.max(0,-p.cash)*RATE);
+    if (interest > 0){ p.cash -= interest; p.yearNotes.push(`Zinsen ${chf(interest)}`); if (p.cash<0) p.yearNotes.push(...ensureCash(p)); }
+    // Halten lohnt sich: nach je 3 Jahren ohne Verkauf 5 % Bonus
+    for (const a of ASSETS){
+      if (a.id==='spar') continue;
+      if (posVal(p,a.id) > 0){
+        p.hold[a.id] = (p.hold[a.id]||0) + 1;
+        if (p.hold[a.id] % 3 === 0){
+          const b = posVal(p,a.id)*0.05; p.cash += b;
+          p.yearNotes.push(`Halte-Bonus ${A[a.id].name} ${chf(b)}`);
+        }
+      } else p.hold[a.id] = 0;
+    }
+    p.sold.clear();
+    updateMin(p);
+    p.hist.push(netWorth(p));
+  }
+}
+
+act.next = () => { if (G.year >= ROUNDS) endGame(); else startYear(); window.scrollTo(0,0); };
+
+function checkGoal(p){
+  switch (p.goal.id){
+    case 'vorsorge': return p.minNet >= 8000;
+    case 'divers': return ASSETS.filter(a=>posVal(p,a.id) >= 500).length >= 4;
+    case 'schuldenfrei': return !p.everCredit;
+    case 'langfristig': return Object.entries(p.hold).some(([id,h])=>h>=6 && posVal(p,id)>0);
+    case 'sparfuchs': return p.fees <= 600;
+    case 'wachstum': return netWorth(p) >= 15000;
+  }
+  return false;
+}
+function endGame(){
+  for (const p of G.players){
+    p.goalMet = checkGoal(p);
+    p.finalInvested = invested(p);
+    p.cash += p.finalInvested; p.shares = {};
+    p.cash -= p.debt; p.repaid = p.debt; p.debt = 0;
+    p.final = p.cash;
+    p.out = p.final < 0;
+    p.score = p.out ? null : p.final + (p.goalMet ? p.goal.bonus : 0);
+  }
+  G.phase = 'end'; render();
+}
+
+/* ============ Setup ============ */
+const setup = {
+  name:(i,v)=>{ setupRows[i].name = v; },
+  type:(i,v)=>{ setupRows[i].type = v; },
+  add:()=>{ if (setupRows.length<6){ setupRows.push({name:`Spieler ${setupRows.length+1}`, type:'human'}); render(); } },
+  del:i=>{ if (setupRows.length>1){ setupRows.splice(i,1); render(); } },
+  start:()=>{ newGame(); },
+};
+function viewSetup(){
+  const opts = t => `<option value="human" ${t==='human'?'selected':''}>Mensch</option>` +
+    Object.entries(BOT_TYPES).map(([k,v])=>`<option value="${k}" ${t===k?'selected':''}>${v.label}</option>`).join('');
+  return `
+  <div class="wrap" style="max-width:820px">
+    <div class="card">
+      <div class="center">
+        <div class="big">📈🎲</div>
+        <h2 style="font-size:28px">Börsenfieber</h2>
+        <p class="muted" style="max-width:560px;margin:0 auto 6px">«Investiere dein Geld klug in sechs Anlagen – und überlebe Crashs, Hypes und das echte Leben, ohne dein Ziel aus den Augen zu verlieren.»</p>
+      </div>
+      <h3 style="margin-top:20px">Mitspielende (1–6)</h3>
+      <p class="muted" style="margin-top:0">Mehrere Menschen spielen abwechselnd am selben Gerät. Computer-Gegner machen die Panik-Regel spannender.</p>
+      ${setupRows.map((r,i)=>`
+        <div class="row" style="margin-bottom:8px">
+          <span class="dot" style="background:${PCOLORS[i]}"></span>
+          <input style="flex:1;min-width:120px" value="${esc(r.name)}" maxlength="18" oninput="setup.name(${i},this.value)">
+          <select onchange="setup.type(${i},this.value)">${opts(r.type)}</select>
+          <button class="small" onclick="setup.del(${i})" ${setupRows.length<2?'disabled':''} aria-label="Entfernen">✕</button>
+        </div>`).join('')}
+      <div class="between" style="margin-top:12px">
+        <button onclick="setup.add()" ${setupRows.length>=6?'disabled':''}>+ Person hinzufügen</button>
+        <button class="primary" onclick="setup.start()">Spiel starten</button>
+      </div>
+      <details>
+        <summary>Spielregeln</summary>
+        <ul class="rules">
+          <li>Alle starten mit <b>CHF 10'000</b> und spielen <b>8 Runden</b> (= 8 Jahre).</li>
+          <li><b>Jede Runde:</b> 1. Nachricht aufdecken → 2. Lebensereignis ziehen → 3. Handeln (jede Transaktion kostet CHF 50) → 4. Markt würfeln (Nachricht + Würfel) → 5. Panik-Regel.</li>
+          <li><b>Panik-Regel:</b> Verkauft mehr als die Hälfte der Personen dieselbe Anlage, fällt ihr Kurs zusätzlich um 10 %.</li>
+          <li><b>Halten lohnt sich:</b> Wer eine Anlage 3 Jahre nicht verkauft, erhält 5 % Bonus (Sparkonto ausgenommen).</li>
+          <li><b>Kredit:</b> Bis CHF 5'000 leihen, 10 % Zins pro Jahr.</li>
+          <li><b>Kein Bargeld?</b> Dann werden Anlagen automatisch verkauft – egal zu welchem Kurs.</li>
+          <li>Kurse bewegen sich zwischen 0 % und 300 % (Start: 100 %). Fällt ein Kurs auf 0, ist die Anlage wertlos.</li>
+          <li><b>Ende:</b> Alles wird verkauft, Kredite zurückbezahlt. Punkte = Endvermögen + Bonus fürs geheime Anlageziel. Wer Schulden hat, scheidet aus.</li>
+        </ul>
+        <h3>Die Anlagen und ihre Würfel</h3>
+        <div class="tablewrap"><table>
+          <tr><th>Anlage</th><th>Würfelseiten</th><th>Was man lernt</th></tr>
+          ${ASSETS.map(a=>`<tr><td><span class="dot" style="background:${a.color}"></span>${a.name}</td><td class="num">${a.die?a.die.map(d=>pct(d)).join(', '):'immer +1 %'}</td><td class="muted">${a.desc}</td></tr>`).join('')}
+        </table></div>
+        <h3 style="margin-top:14px">Geheime Anlageziele</h3>
+        <ul class="rules">${GOALS.map(g=>`<li><b>${g.name}:</b> ${g.text} → +${fmt(g.bonus)} Punkte</li>`).join('')}</ul>
+      </details>
+    </div>
+  </div>`;
+}
+
+/* ============ Ansichten ============ */
+function sparkline(vals, color){
+  const w=110, h=26, max=Math.max(...vals,1), min=Math.min(...vals,0);
+  const n = Math.max(ROUNDS, vals.length-1);
+  const pts = vals.map((v,i)=>`${(i/n*w).toFixed(1)},${(h-2-(v-min)/(max-min||1)*(h-4)).toFixed(1)}`).join(' ');
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+}
+function viewBoard(){
+  return `<aside class="card">
+    <div class="between"><h2 style="margin:0">Kurstafel</h2><span class="muted" style="font-size:12px">0 – 300 %</span></div>
+    ${ASSETS.map(a=>{
+      const p = G.prices[a.id], ch = G.lastChange[a.id];
+      return `<div class="board-row" title="${esc(a.desc)}">
+        <div class="between">
+          <span><span class="dot" style="background:${a.color}"></span><b>${a.name}</b></span>
+          <span class="num"><b>${p.toFixed(1)} %</b> ${ch!==undefined?`<span class="${cls(ch)}" style="font-size:12px">${pct(ch)}</span>`:''}</span>
+        </div>
+        <div class="between" style="align-items:flex-end">
+          <div style="flex:1"><div class="bar"><i style="width:${p/MAXP*100}%;background:${a.color}"></i><b></b></div>
+          <div class="faces">${a.die?'🎲 '+a.die.map(d=>(d>0?'+':'')+d).join(' · '):'immer +1 %'}</div></div>
+          ${sparkline(G.hist[a.id], a.color)}
+        </div>
+      </div>`;}).join('')}
+  </aside>`;
+}
+function newsBox(){
+  return `<div class="news"><div class="kicker">Nachricht für Jahr ${G.year}</div><div class="head">${esc(G.news.t)}</div>${fxChips(G.news.fx)}</div>`;
+}
+function viewNews(){
+  return `<div class="card">
+    <h2>1 · Nachricht aufdecken</h2>
+    ${newsBox()}
+    <p class="muted">Diese Nachricht gilt für das ganze Jahr ${G.year}. Ihre Wirkung wird beim Würfeln zum Würfelergebnis addiert.
+    ${Object.keys(G.news.fx).some(id=>A[id].stock) && Object.keys(G.news.fx).filter(id=>A[id].stock).length<3 ? '<br><b>Branchen-Nachricht:</b> Wer verteilt hat, verliert weniger.' : ''}</p>
+    <button class="primary" onclick="act.drawEvents()">Lebensereignisse ziehen →</button>
+  </div>
+  ${standings()}`;
+}
+function viewEvents(){
+  return `<div class="card">
+    <h2>2 · Lebensereignisse</h2>
+    <div class="tablewrap"><table>
+      <tr><th>Person</th><th>Ereignis</th><th class="r">Betrag</th><th>Folgen</th></tr>
+      ${G.players.map(p=>`<tr>
+        <td><span class="dot" style="background:${p.color}"></span>${esc(p.name)}</td>
+        <td>${esc(p.event.card.t)}</td>
+        <td class="r num ${cls(p.event.card.v)}">${p.event.card.v?(p.event.card.v>0?'+':'')+chf(p.event.card.v):'–'}</td>
+        <td class="${p.event.notes.length?'neg':'muted'}" style="font-size:13px">${p.event.notes.length?esc(p.event.notes.join(', ')):'–'}</td>
+      </tr>`).join('')}
+    </table></div>
+    <p class="muted">Tipp: Etwas Bargeld als Reserve schützt vor Zwangsverkäufen zum schlechten Kurs.</p>
+    <button class="primary" onclick="act.startTrading()">Zum Handeln →</button>
+  </div>`;
+}
+function viewHandover(){
+  const p = cur();
+  return `<div class="card center" style="padding:40px 18px">
+    <div class="big">🤫</div>
+    <h2>Gib das Gerät an <span style="color:${p.color}">${esc(p.name)}</span></h2>
+    <p class="muted">Alle anderen bitte wegschauen – Depot und Anlageziel sind geheim.</p>
+    <button class="primary" onclick="act.beginTurn()">Ich bin ${esc(p.name)} – los geht's</button>
+  </div>`;
+}
+function goalCard(p){
+  if (!G.showGoal) return `<div class="goal hidden" onclick="act.toggleGoal()">🔒 Geheimes Anlageziel – <u>antippen zum Aufdecken</u></div>`;
+  return `<div class="goal" onclick="act.toggleGoal()" style="cursor:pointer"><b>🎯 ${p.goal.name}</b> (+${fmt(p.goal.bonus)} Punkte)<br>${p.goal.text}
+    <div class="muted" style="font-size:12px;margin-top:4px">Antippen zum Verdecken</div></div>`;
+}
+function viewTrade(){
+  const p = cur(), net = netWorth(p);
+  const amts = [500,1000,2000,5000];
+  return `<div class="card">
+    <div class="between"><h2 style="margin:0">3 · Handeln: <span style="color:${p.color}">${esc(p.name)}</span></h2>
+      <button class="primary" onclick="act.endTurn()">Fertig ✓</button></div>
+    <div class="stats">
+      <div class="stat"><div class="l">Bargeld</div><div class="v ${p.cash<0?'neg':''}">${chf(p.cash)}</div></div>
+      <div class="stat"><div class="l">Angelegt</div><div class="v">${chf(invested(p))}</div></div>
+      <div class="stat"><div class="l">Kredit</div><div class="v ${p.debt?'neg':''}">${chf(p.debt)}</div></div>
+      <div class="stat"><div class="l">Vermögen</div><div class="v">${chf(net)}</div></div>
+    </div>
+    ${goalCard(p)}
+    ${newsBox()}
+    <div class="row" style="margin:6px 0 4px">
+      <span class="muted">Betrag:</span>
+      ${amts.map(a=>`<button class="small chip ${G.amt===a?'on':''}" onclick="act.setAmt(${a})">${fmt(a)}</button>`).join('')}
+      <input type="number" min="0" step="100" value="${G.amt}" style="width:110px" onchange="act.setAmt(this.value)" aria-label="Eigener Betrag">
+      <span class="muted" style="font-size:13px">+ CHF 50 Gebühr pro Transaktion</span>
+    </div>
+    ${G.flash?`<div class="flash">${esc(G.flash)}</div>`:''}
+    <div class="tablewrap"><table>
+      <tr><th>Anlage</th><th class="r">Kurs</th><th class="r">Dein Bestand</th><th class="r">Haltejahre</th><th></th></tr>
+      ${ASSETS.map(a=>{
+        const v = posVal(p,a.id), h = p.hold[a.id]||0, dead = G.prices[a.id]<=0, panicNow = sellersOf(a.id);
+        return `<tr>
+          <td><span class="dot" style="background:${a.color}"></span>${a.name}${dead?'<span class="tag">wertlos</span>':''}</td>
+          <td class="r num">${G.prices[a.id].toFixed(1)} %</td>
+          <td class="r num">${v>0?chf(v):'<span class="muted">–</span>'}</td>
+          <td class="r num">${v>0 && a.id!=='spar'?`${h} J.${h>0&&(h+1)%3===0?' <span class="tag">Bonus nächstes Jahr</span>':''}`:'<span class="muted">–</span>'}</td>
+          <td class="r"><div class="row" style="justify-content:flex-end;flex-wrap:nowrap">
+            <button class="small" onclick="act.buy('${a.id}')" ${dead?'disabled':''}>Kaufen</button>
+            <button class="small" onclick="act.sell('${a.id}')" ${v>0?'':'disabled'}>Verkaufen</button>
+            <button class="small" onclick="act.sellAll('${a.id}')" ${v>0?'':'disabled'}>Alles</button>
+          </div></td></tr>`;}).join('')}
+    </table></div>
+    <div class="between" style="margin-top:14px">
+      <div><b>Bankkredit</b> <span class="muted">(max. ${chf(CREDIT_MAX)}, 10 % Zins/Jahr)</span></div>
+      <div class="row">
+        <button class="small" onclick="act.borrow()" ${p.debt>=CREDIT_MAX?'disabled':''}>Leihen</button>
+        <button class="small" onclick="act.repay()" ${p.debt<=0?'disabled':''}>Zurückzahlen</button>
+      </div>
+    </div>
+    ${p.turnLog.length?`<div class="log">${p.turnLog.map(esc).join('<br>')}</div>`:''}
+  </div>`;
+}
+function viewMarket(){
+  const res = G.results;
+  const rows = ASSETS.map(a=>{
+    const r = res && res.find(x=>x.id===a.id);
+    const s = sellersOf(a.id), panic = r ? r.panic : (panicFor(a.id)?-10:0);
+    const sellCount = r ? r.sellers : s;
+    return `<tr>
+      <td><span class="dot" style="background:${a.color}"></span>${a.name}</td>
+      <td class="r num ${cls(a.fixed?0:(G.news.fx[a.id]||0))}">${a.fixed?'–':pct(G.news.fx[a.id]||0)}</td>
+      <td class="r"><span class="die" id="die-${a.id}" style="border-color:${a.color}">${a.fixed?'+1 %':r?pct(r.dice):'?'}</span></td>
+      <td class="r num">${panic?`<span class="panic" title="${sellCount} von ${G.players.length} haben verkauft">−10 % 😱</span>`:'<span class="muted">–</span>'}</td>
+      <td class="r num ${r?cls(r.change):''}"><b>${r?pct(r.change):''}</b></td>
+      <td class="r num">${r?`${r.old.toFixed(1)} → <b>${r.nw.toFixed(1)} %</b>`:`${G.prices[a.id].toFixed(1)} %`}</td>
+    </tr>`;}).join('');
+  const panicked = ASSETS.filter(a=>res ? res.find(x=>x.id===a.id).panic : panicFor(a.id));
+  return `<div class="card">
+    <h2>4 · Markt würfeln${res?' – Ergebnis':''}</h2>
+    ${panicked.length?`<div class="flash">😱 <b>Herdentrieb!</b> Mehr als die Hälfte hat ${panicked.map(a=>a.name).join(', ')} verkauft – zusätzlich −10 %.</div>`:''}
+    <div class="tablewrap"><table>
+      <tr><th>Anlage</th><th class="r">Nachricht</th><th class="r">Würfel</th><th class="r">Panik</th><th class="r">Total</th><th class="r">Kurs</th></tr>
+      ${rows}
+    </table></div>
+    <div style="margin-top:14px">
+    ${res ? `<button class="primary" onclick="act.next()">${G.year>=ROUNDS?'Spiel auswerten 🏁':`Weiter zu Jahr ${G.year+1} →`}</button>`
+          : `<button class="primary" onclick="act.roll()" ${G.rolling?'disabled':''}>${G.rolling?'Würfel rollen …':'🎲 Würfeln!'}</button>`}
+    </div>
+  </div>
+  ${res ? yearReport() : ''}`;
+}
+function yearReport(){
+  return `<div class="card"><h2>Jahresabschluss ${G.year}</h2>
+    <div class="tablewrap"><table>
+      <tr><th>Person</th><th class="r">Vermögen</th><th class="r">Veränderung</th><th>Notizen</th></tr>
+      ${G.players.map(p=>{ const n = netWorth(p), d = n - p.netBefore; return `<tr>
+        <td><span class="dot" style="background:${p.color}"></span>${esc(p.name)}</td>
+        <td class="r num"><b>${chf(n)}</b></td>
+        <td class="r num ${cls(d)}">${d>=0?'+':''}${chf(d)}</td>
+        <td class="muted" style="font-size:13px">${p.yearNotes.length?esc(p.yearNotes.join(', ')):'–'}</td></tr>`;}).join('')}
+    </table></div></div>`;
+}
+function standings(){
+  return `<div class="card"><h3>Zwischenstand</h3>
+    <div class="tablewrap"><table>
+      <tr><th>Person</th><th class="r">Vermögen</th></tr>
+      ${G.players.slice().sort((a,b)=>netWorth(b)-netWorth(a)).map(p=>`<tr><td><span class="dot" style="background:${p.color}"></span>${esc(p.name)} ${p.type!=='human'?'<span class="tag">Computer</span>':''}</td><td class="r num">${chf(netWorth(p))}</td></tr>`).join('')}
+    </table></div></div>`;
+}
+function lineChart(series){
+  const w=640, h=240, pl=56, pr=12, pt=10, pb=26;
+  const all = series.flatMap(s=>s.values);
+  let max = Math.max(...all), min = Math.min(...all, 0);
+  max = Math.ceil(max/5000)*5000; min = Math.floor(min/5000)*5000;
+  const X = i => pl + i/ROUNDS*(w-pl-pr), Y = v => pt + (1-(v-min)/(max-min||1))*(h-pt-pb);
+  const step = Math.max(5000, Math.ceil((max-min)/4/5000)*5000);
+  const ticks = []; for (let v=min; v<=max; v+=step) ticks.push(v);
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" role="img" aria-label="Vermögensverlauf">
+    ${ticks.map(v=>`<line x1="${pl}" x2="${w-pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--border)"/><text x="${pl-6}" y="${Y(v)+4}" text-anchor="end">${fmt(v/1000)}k</text>`).join('')}
+    ${Array.from({length:ROUNDS+1},(_,i)=>`<text x="${X(i)}" y="${h-8}" text-anchor="middle">${i===0?'Start':'J'+i}</text>`).join('')}
+    ${series.map(s=>`<polyline points="${s.values.map((v,i)=>`${X(i)},${Y(v)}`).join(' ')}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linejoin="round"/>
+      ${s.values.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${s.color}"><title>${esc(s.name)} · ${i===0?'Start':'Jahr '+i}: ${chf(v)}</title></circle>`).join('')}`).join('')}
+  </svg>
+  <div class="legend">${series.map(s=>`<span><span class="dot" style="background:${s.color}"></span>${esc(s.name)}</span>`).join('')}</div>`;
+}
+function viewEnd(){
+  const ranked = G.players.slice().sort((a,b)=>(b.score??-Infinity)-(a.score??-Infinity));
+  const win = ranked[0];
+  return `<div class="card">
+    <div class="center">
+      <div class="big">🏆</div>
+      <h2 style="font-size:26px">${win.out?'Alle haben Schulden – niemand gewinnt!':`${esc(win.name)} gewinnt mit ${fmt(win.score)} Punkten!`}</h2>
+    </div>
+    <div class="tablewrap"><table>
+      <tr><th>#</th><th>Person</th><th class="r">Endvermögen</th><th>Anlageziel</th><th class="r">Punkte</th></tr>
+      ${ranked.map((p,i)=>`<tr>
+        <td>${p.out?'–':i+1}</td>
+        <td><span class="dot" style="background:${p.color}"></span>${esc(p.name)}</td>
+        <td class="r num ${p.out?'neg':''}">${chf(p.final)}</td>
+        <td style="font-size:13px">${p.goal.name}: ${p.goalMet?`<span class="pos">✓ +${fmt(p.goal.bonus)}</span>`:'<span class="muted">✗ nicht erreicht</span>'}<div class="muted">${p.goal.text}</div></td>
+        <td class="r num"><b>${p.out?'<span class="neg">ausgeschieden</span>':fmt(p.score)}</b></td>
+      </tr>`).join('')}
+    </table></div>
+  </div>
+  <div class="card"><h2>Vermögensverlauf</h2>${lineChart(G.players.map(p=>({name:p.name,color:p.color,values:p.hist})))}</div>
+  <div class="card"><h2>Was lernen wir daraus?</h2>
+    <div class="tablewrap"><table>
+      <tr><th>Person</th><th class="r">Rendite</th><th class="r">Kaufkraft nach Inflation*</th><th class="r">Gebühren</th><th class="r">Kredit zurückbezahlt</th></tr>
+      ${G.players.map(p=>`<tr><td><span class="dot" style="background:${p.color}"></span>${esc(p.name)}</td>
+        <td class="r num ${cls(p.final-START)}">${pct((p.final/START-1)*100)}</td>
+        <td class="r num">${chf(p.final/Math.pow(1+INFL,ROUNDS))}</td>
+        <td class="r num">${chf(p.fees)}</td>
+        <td class="r num">${chf(p.repaid)}</td></tr>`).join('')}
+    </table></div>
+    <p class="muted" style="font-size:13px">* Bei angenommenen 2 % Inflation pro Jahr. Das Sparkonto (+1 %) hätte aus CHF 10'000 nur ${chf(START*Math.pow(1.01,ROUNDS))} gemacht – real also <b>weniger</b> Kaufkraft: ${chf(START*Math.pow(1.01/1.02,ROUNDS))}.</p>
+    <button class="primary" onclick="G=null;render()">Neues Spiel</button>
+  </div>`;
+}
+
+/* ============ Render ============ */
+const PHASES = ['Nachricht','Ereignisse','Handeln','Markt'];
+function render(){
+  const app = $('#app');
+  if (!G){ app.innerHTML = `<header class="top"><h1>📈 Börsenfieber</h1></header>` + viewSetup(); return; }
+  const idx = {news:0, events:1, handover:2, trade:2, market:3}[G.phase];
+  let main = '';
+  switch (G.phase){
+    case 'news': main = viewNews(); break;
+    case 'events': main = viewEvents(); break;
+    case 'handover': main = viewHandover(); break;
+    case 'trade': main = viewTrade(); break;
+    case 'market': main = viewMarket(); break;
+    case 'end': main = viewEnd(); break;
+  }
+  app.innerHTML = `<header class="top">
+      <h1>📈 Börsenfieber</h1>
+      <div class="yr">${G.phase==='end'?'Spielende':`Jahr <b>${G.year}</b> / ${ROUNDS} · ${PHASES.map((n,i)=>i===idx?`<b style="color:var(--accent)">${n}</b>`:n).join(' › ')}`}</div>
+    </header>
+    <div class="wrap"><div class="grid"><main>${main}</main>${G.phase==='handover'?'':viewBoard()}</div></div>`;
+}
+render();
+</script>
+</body>
+</html>
