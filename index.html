@@ -188,8 +188,7 @@ function newGame(){
       everCredit:false, fees:0, sold:new Set(), hist:[START], turnLog:[],
     })),
   };
-  // Startinvestition: Alle dürfen schon vor der ersten Nachrichtenkarte investieren.
-  act.startTrading();
+  startYear();
 }
 
 function startYear(){
@@ -267,7 +266,6 @@ function nextTurn(){
   }
   G.flash = ''; G.showGoal = false;
   if (G.turn >= G.players.length){
-    if (G.year === 0){ startYear(); return; }   // nach der Startinvestition: erste Nachricht
     G.phase = 'market'; G.rolling = false;
   }
   else G.phase = humans().length > 1 ? 'handover' : 'trade';
@@ -293,13 +291,13 @@ function botTrade(p){
     if (a.id==='spar' || posVal(p,a.id) <= 0) continue;
     if ((G.lastChange[a.id] ?? 0) <= -15 && Math.random() < T.herd) sell(p, a.id, Infinity);
   }
-  if (p.type==='risikofreudig' && G.year===0) borrow(p, 3000);
+  if (p.type==='risikofreudig' && G.year===1) borrow(p, 3000);
   if (p.type==='vorsichtig' && p.debt>0 && p.cash > p.debt+1000) repay(p, p.debt);
   const base = netWorth(p) + p.debt - 1000;
   for (const [id,w] of Object.entries(T.w)){
     if (G.prices[id] <= 0) continue;
     const diff = base*w - posVal(p,id);
-    if (diff >= 1000 && (G.year===0 || Math.random()<.5)){
+    if (diff >= 1000 && (G.year===1 || Math.random()<.5)){
       const amt = Math.min(Math.floor(diff/500)*500, Math.floor((p.cash-FEE-300)/500)*500);
       if (amt >= 500) buy(p, id, amt);
     } else if (diff <= -2500 && Math.random()<.4){
@@ -428,7 +426,6 @@ function viewSetup(){
         <summary>Spielregeln</summary>
         <ul class="rules">
           <li>Alle starten mit <b>CHF 10'000</b> und spielen <b>8 Runden</b> (= 8 Jahre).</li>
-          <li><b>Startinvestition:</b> Schon vor der ersten Nachrichtenkarte dürfen alle ihr Geld anlegen.</li>
           <li><b>Jede Runde:</b> 1. Nachricht aufdecken → 2. Handeln (jede Transaktion kostet CHF 50) → 3. Markt würfeln (Nachricht + Würfel) → 4. Panik-Regel.</li>
           <li><b>Vier Anlagen:</b> Sparkonto, ETF, Aktie und Krypto – von sicher bis extrem riskant.</li>
           <li><b>Panik-Regel:</b> Verkauft mehr als die Hälfte der Personen dieselbe Anlage, fällt ihr Kurs zusätzlich um 10 %.</li>
@@ -478,14 +475,14 @@ function viewBoard(){
   </aside>`;
 }
 function newsBox(){
-  return `<div class="news"><div class="kicker">Nachricht für Jahr ${G.year}</div><div class="head">${esc(G.news.t)}</div>${fxChips(G.news.fx)}</div>`;
+  return `<div class="news"><div class="kicker">Nachricht für Jahr ${G.year}</div><div class="head">${esc(G.news.t)}</div>${G.results?fxChips(G.news.fx):'<span class="muted">Welche Kurse betroffen sind, zeigt sich erst beim Würfeln.</span>'}</div>`;
 }
 function viewNews(){
   return `<div class="card">
     <h2>1 · Nachricht aufdecken</h2>
     ${newsBox()}
-    <p class="muted">Diese Nachricht gilt für das ganze Jahr ${G.year}. Ihre Wirkung wird zu den drei Würfen addiert.
-    ${G.news.fx.aktie && !G.news.fx.etf ? '<br><b>Firmen-Nachricht:</b> Trifft nur die Einzelaktie – wer breit gestreut hat (ETF), verliert weniger.' : ''}</p>
+    <p class="muted">Diese Nachricht gilt für das ganze Jahr ${G.year}. Überlege selbst, welche Anlagen davon profitieren oder leiden könnten – aufgedeckt wird erst beim Würfeln, dann wird die Wirkung zu den drei Würfen addiert.
+</p>
     <button class="primary" onclick="act.startTrading()">Zum Handeln →</button>
   </div>
   ${standings()}`;
@@ -508,7 +505,7 @@ function viewTrade(){
   const p = cur(), net = netWorth(p);
   const amts = [500,1000,2000,5000];
   return `<div class="card">
-    <div class="between"><h2 style="margin:0">${G.year===0?'Startinvestition':'2 · Handeln'}: <span style="color:${p.color}">${esc(p.name)}</span></h2>
+    <div class="between"><h2 style="margin:0">2 · Handeln: <span style="color:${p.color}">${esc(p.name)}</span></h2>
       <button class="primary" onclick="act.endTurn()">Fertig ✓</button></div>
     <div class="stats">
       <div class="stat"><div class="l">Bargeld</div><div class="v ${p.cash<0?'neg':''}">${chf(p.cash)}</div></div>
@@ -517,7 +514,7 @@ function viewTrade(){
       <div class="stat"><div class="l">Vermögen</div><div class="v">${chf(net)}</div></div>
     </div>
     ${goalCard(p)}
-    ${G.year===0 ? `<div class="news"><div class="kicker">Vor dem ersten Jahr</div><div class="head">Lege dein Startkapital an</div><span class="muted">Noch ist keine Nachricht bekannt – verteile dein Geld nach deiner Strategie. Danach wird die erste Nachrichtenkarte aufgedeckt.</span></div>` : newsBox()}
+    ${newsBox()}
     <div class="row" style="margin:6px 0 4px">
       <span class="muted">Betrag:</span>
       ${amts.map(a=>`<button class="small chip ${G.amt===a?'on':''}" onclick="act.setAmt(${a})">${fmt(a)}</button>`).join('')}
@@ -558,7 +555,7 @@ function viewMarket(){
     const sellCount = r ? r.sellers : s;
     return `<tr>
       <td><span class="dot" style="background:${a.color}"></span>${a.name}</td>
-      <td class="r num ${cls(a.fixed?0:(G.news.fx[a.id]||0))}">${a.fixed?'–':pct(G.news.fx[a.id]||0)}</td>
+      <td class="r num ${r?cls(a.fixed?0:(G.news.fx[a.id]||0)):''}">${a.fixed?'–':r?pct(G.news.fx[a.id]||0):'<span class="muted">?</span>'}</td>
       <td class="r"><div class="row" style="justify-content:flex-end;flex-wrap:nowrap;gap:4px">${a.fixed?`<span class="die" style="border-color:${a.color}">+1 %</span>`:Array.from({length:ROLLS},(_,k)=>`<span class="die" id="die-${a.id}-${k}" style="border-color:${a.color}">${r?pct(r.dice[k]):'?'}</span>`).join('')}</div></td>
       <td class="r num">${panic?`<span class="panic" title="${sellCount} von ${G.players.length} haben verkauft">−10 % 😱</span>`:'<span class="muted">–</span>'}</td>
       <td class="r num ${r?cls(r.change):''}"><b>${r?pct(r.change):''}</b></td>
@@ -567,6 +564,7 @@ function viewMarket(){
   const panicked = ASSETS.filter(a=>res ? res.find(x=>x.id===a.id).panic : panicFor(a.id));
   return `<div class="card">
     <h2>3 · Markt würfeln${res?' – Ergebnis':''}</h2>
+    ${res?newsBox():''}
     ${panicked.length?`<div class="flash">😱 <b>Herdentrieb!</b> Mehr als die Hälfte hat ${panicked.map(a=>a.name).join(', ')} verkauft – zusätzlich −10 %.</div>`:''}
     <div class="tablewrap"><table>
       <tr><th>Anlage</th><th class="r">Nachricht</th><th class="r">Würfel (3×)</th><th class="r">Panik</th><th class="r">Total</th><th class="r">Kurs</th></tr>
@@ -663,7 +661,7 @@ function render(){
   }
   app.innerHTML = `<header class="top">
       <h1>📈 Börsenfieber</h1>
-      <div class="yr">${G.phase==='end'?'Spielende':G.year===0?'Startinvestition':`Jahr <b>${G.year}</b> / ${ROUNDS} · ${PHASES.map((n,i)=>i===idx?`<b style="color:var(--accent)">${n}</b>`:n).join(' › ')}`}</div>
+      <div class="yr">${G.phase==='end'?'Spielende':`Jahr <b>${G.year}</b> / ${ROUNDS} · ${PHASES.map((n,i)=>i===idx?`<b style="color:var(--accent)">${n}</b>`:n).join(' › ')}`}</div>
     </header>
     <div class="wrap"><div class="grid"><main>${main}</main>${G.phase==='handover'?'':viewBoard()}</div></div>`;
 }
