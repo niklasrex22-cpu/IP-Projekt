@@ -62,6 +62,7 @@ td.r,th.r{text-align:right}
 .stat .v{font-size:19px;font-weight:650;font-variant-numeric:tabular-nums}
 .news{border-left:5px solid var(--accent);background:var(--surface2);border-radius:10px;padding:16px 18px;margin:8px 0 14px}
 .news .kicker{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.news .newsd{margin:0 0 10px;max-width:62ch}
 .news .head{font-size:22px;font-weight:700;margin:4px 0 6px;letter-spacing:-.01em}
 .fx{display:inline-block;padding:2px 8px;border-radius:999px;font-size:13px;background:var(--surface);border:1px solid var(--border);margin:3px 4px 0 0}
 .goal{border:1px dashed var(--accent);border-radius:12px;padding:12px 14px;background:var(--accent-soft)}
@@ -101,36 +102,36 @@ const ASSETS = [
 ];
 const A = Object.fromEntries(ASSETS.map(a=>[a.id,a]));
 const NEWS = [
-  {t:'Zinserhöhung der Nationalbank', fx:{etf:-5, aktie:-10}},
-  {t:'Nationalbank senkt die Zinsen', fx:{etf:5, aktie:8}},
-  {t:'Durchbruch bei KI', fx:{aktie:25, etf:3}},
-  {t:'Riesiges Datenleck bei der Firma', fx:{aktie:-20}},
-  {t:'Neues Produkt wird zum Verkaufshit', fx:{aktie:20}},
-  {t:'Firmenchef tritt nach Skandal zurück', fx:{aktie:-15}},
-  {t:'Weltweite Rezession', fx:{etf:-15, aktie:-15, krypto:-20}},
-  {t:'Wirtschaftsboom', fx:{etf:10, aktie:10}},
-  {t:'Grossland verbietet Kryptowährungen', fx:{krypto:-40}},
-  {t:'Erster Krypto-ETF bewilligt', fx:{krypto:50}},
-  {t:'Krypto-Börse gehackt', fx:{krypto:-30}},
-  {t:'Geopolitische Krise', fx:{etf:-8, aktie:-8, krypto:-10}},
-  {t:'Inflation steigt stark', fx:{etf:-5, aktie:-5, krypto:10}},
-  {t:'Ruhiges Börsenjahr', fx:{}},
-  {t:'Sommerflaute an der Börse', fx:{}},
-  {t:'Pandemie bricht aus', fx:{etf:-10, aktie:-15}},
-  {t:'Rekord-Quartalszahlen', fx:{aktie:15, etf:5}},
-  {t:'Influencer-Hype um Kryptowährungen', fx:{krypto:40}},
-  {t:'Starker Franken belastet Exporteure', fx:{etf:-5, aktie:-5}},
-  {t:'Bankenkrise', fx:{etf:-12, aktie:-10, krypto:10}},
-  {t:'Börsenblase platzt', fx:{aktie:-20, krypto:-30, etf:-10}},
-  {t:'Übernahmeangebot für die Firma', fx:{aktie:25}},
-  {t:'Gewinnwarnung der Firma', fx:{aktie:-15}},
-  {t:'Rekordhoch an den Weltbörsen', fx:{etf:8, aktie:5}},
-  {t:'Handelsstreit zwischen Grossmächten', fx:{etf:-8, aktie:-10}},
-  {t:'Grossbank empfiehlt Krypto', fx:{krypto:25}},
-  {t:'Krypto-Mining wird wegen Stromverbrauch eingeschränkt', fx:{krypto:-20}},
-  {t:'Firma zahlt Sonderdividende', fx:{aktie:10}},
-  {t:'Konkurrenz bringt besseres Produkt', fx:{aktie:-20}},
-  {t:'Pensionskassen investieren mehr in Aktien', fx:{etf:6, aktie:6}},
+  {t:'Zinserhöhung der Nationalbank', d:'Um die Teuerung zu bremsen, hebt die Nationalbank den Leitzins an. Kredite werden teurer, und Sparen wird wieder attraktiver – Firmen müssen für Investitionen mehr bezahlen.', fx:{etf:-5, aktie:-10}},
+  {t:'Nationalbank senkt die Zinsen', d:'Die Nationalbank senkt den Leitzins, um die Wirtschaft anzukurbeln. Geld leihen wird günstiger, auf dem Sparkonto gibt es noch weniger Zins – viele suchen nach Alternativen.', fx:{etf:5, aktie:8}},
+  {t:'Durchbruch bei KI', d:'Forschende präsentieren eine künstliche Intelligenz, die ganze Arbeitsabläufe selbstständig erledigt. Die Firma, an der du Aktien halten kannst, hat früh in diese Technologie investiert.', fx:{aktie:25, etf:3}},
+  {t:'Riesiges Datenleck bei der Firma', d:'Hacker haben Millionen Kundendaten der Firma gestohlen. Kundinnen und Kunden kündigen, und den Behörden drohen hohe Bussen.', fx:{aktie:-20}},
+  {t:'Neues Produkt wird zum Verkaufshit', d:'Das neue Produkt der Firma ist überall ausverkauft. In den sozialen Medien zeigen alle ihr Exemplar, und die Lieferzeiten betragen Wochen.', fx:{aktie:20}},
+  {t:'Firmenchef tritt nach Skandal zurück', d:'Der Chef der Firma soll Spesen in Millionenhöhe privat verwendet haben. Er tritt zurück – wer die Firma künftig führt, ist völlig offen.', fx:{aktie:-15}},
+  {t:'Weltweite Rezession', d:'Die Weltwirtschaft schrumpft: Firmen entlassen Personal, die Leute kaufen weniger ein und Anlegerinnen ziehen ihr Geld aus riskanten Anlagen ab.', fx:{etf:-15, aktie:-15, krypto:-20}},
+  {t:'Wirtschaftsboom', d:'Die Wirtschaft wächst so stark wie seit Jahren nicht mehr. Die Arbeitslosigkeit ist tief, die Menschen geben Geld aus, und die Firmen machen gute Gewinne.', fx:{etf:10, aktie:10}},
+  {t:'Grossland verbietet Kryptowährungen', d:'Eines der bevölkerungsreichsten Länder der Welt verbietet den Handel mit Kryptowährungen. Millionen Nutzende müssen ihre Coins verkaufen.', fx:{krypto:-40}},
+  {t:'Erster Krypto-ETF bewilligt', d:'Die Finanzaufsicht erlaubt erstmals einen Fonds, der in Kryptowährungen investiert. Nun können auch grosse Banken und Pensionskassen ganz einfach einsteigen.', fx:{krypto:50}},
+  {t:'Krypto-Börse gehackt', d:'Bei einer der grössten Krypto-Handelsplattformen wurden Coins im Wert von Milliarden gestohlen. Das Vertrauen in die ganze Branche ist erschüttert.', fx:{krypto:-30}},
+  {t:'Geopolitische Krise', d:'Zwischen zwei Grossmächten eskaliert ein Konflikt. Niemand weiss, wie es weitergeht – und Unsicherheit mögen die Finanzmärkte gar nicht.', fx:{etf:-8, aktie:-8, krypto:-10}},
+  {t:'Inflation steigt stark', d:'Die Preise für Lebensmittel, Mieten und Energie steigen so schnell wie seit 30 Jahren nicht mehr. Wer Geld auf dem Konto hat, kann sich immer weniger davon kaufen.', fx:{etf:-5, aktie:-5, krypto:10}},
+  {t:'Ruhiges Börsenjahr', d:'Keine grossen Schlagzeilen, keine Krisen: Die Wirtschaft läuft in gewohnten Bahnen. Nur der Zufall entscheidet dieses Jahr über die Kurse.', fx:{}},
+  {t:'Sommerflaute an der Börse', d:'Viele Händlerinnen und Händler sind in den Ferien, an der Börse passiert wenig. Analysten erwarten ein unspektakuläres Jahr.', fx:{}},
+  {t:'Pandemie bricht aus', d:'Ein neues Virus verbreitet sich weltweit. Läden schliessen, Reisen werden abgesagt, und viele Firmen können nicht mehr normal arbeiten.', fx:{etf:-10, aktie:-15}},
+  {t:'Rekord-Quartalszahlen', d:'Die Firma meldet den höchsten Gewinn ihrer Geschichte – deutlich mehr, als Fachleute erwartet hatten. Auch andere Unternehmen berichten von guten Zahlen.', fx:{aktie:15, etf:5}},
+  {t:'Influencer-Hype um Kryptowährungen', d:'Bekannte Influencer werben auf allen Kanälen für Kryptowährungen. Plötzlich wollen auch Leute einsteigen, die sich noch nie mit Geldanlagen beschäftigt haben.', fx:{krypto:40}},
+  {t:'Starker Franken belastet Exporteure', d:'Der Franken ist so stark wie nie. Für ausländische Kundschaft werden Schweizer Produkte teurer, und exportierende Firmen verkaufen weniger.', fx:{etf:-5, aktie:-5}},
+  {t:'Bankenkrise', d:'Eine grosse Bank gerät in Schieflage, Kundinnen heben in Panik ihr Geld ab. Viele misstrauen dem klassischen Finanzsystem und suchen nach Alternativen ausserhalb der Banken.', fx:{etf:-12, aktie:-10, krypto:10}},
+  {t:'Börsenblase platzt', d:'Jahrelang sind die Kurse immer weiter gestiegen – viel stärker als die Gewinne der Firmen. Jetzt merken alle gleichzeitig, dass vieles überbewertet war.', fx:{aktie:-20, krypto:-30, etf:-10}},
+  {t:'Übernahmeangebot für die Firma', d:'Ein grosser Konkurrent will die Firma kaufen und bietet deutlich mehr als den aktuellen Börsenwert. Wer Aktien hält, könnte profitieren.', fx:{aktie:25}},
+  {t:'Gewinnwarnung der Firma', d:'Die Firma teilt mit, dass sie ihre Ziele für dieses Jahr nicht erreichen wird. Die Verkäufe laufen schlechter als geplant.', fx:{aktie:-15}},
+  {t:'Rekordhoch an den Weltbörsen', d:'Die wichtigsten Aktienindizes der Welt erreichen neue Höchststände. Die Stimmung unter Anlegerinnen und Anlegern ist ausgezeichnet.', fx:{etf:8, aktie:5}},
+  {t:'Handelsstreit zwischen Grossmächten', d:'Zwei Wirtschaftsmächte erheben gegenseitig hohe Zölle. Waren werden teurer, Lieferketten geraten durcheinander, und der Welthandel stockt.', fx:{etf:-8, aktie:-10}},
+  {t:'Grossbank empfiehlt Krypto', d:'Eine der grössten Banken der Welt rät ihrer Kundschaft, einen kleinen Teil des Vermögens in Kryptowährungen anzulegen.', fx:{krypto:25}},
+  {t:'Krypto-Mining wird wegen Stromverbrauch eingeschränkt', d:'Das Schürfen von Kryptowährungen verbraucht so viel Strom wie ein ganzes Land. Mehrere Staaten schränken es nun aus Klimagründen stark ein.', fx:{krypto:-20}},
+  {t:'Firma zahlt Sonderdividende', d:'Die Firma hat so viel Geld verdient, dass sie zusätzlich zur normalen Dividende eine Extra-Auszahlung an ihre Aktionärinnen und Aktionäre ankündigt.', fx:{aktie:10}},
+  {t:'Konkurrenz bringt besseres Produkt', d:'Ein Konkurrent bringt ein Produkt auf den Markt, das besser und günstiger ist. Die Firma droht viele Kundinnen und Kunden zu verlieren.', fx:{aktie:-20}},
+  {t:'Pensionskassen investieren mehr in Aktien', d:'Neue Regeln erlauben es Pensionskassen, mehr Geld an der Börse anzulegen. Milliarden fliessen in den Aktienmarkt.', fx:{etf:6, aktie:6}},
 ];
 
 const GOALS = [
@@ -475,7 +476,7 @@ function viewBoard(){
   </aside>`;
 }
 function newsBox(){
-  return `<div class="news"><div class="kicker">Nachricht für Jahr ${G.year}</div><div class="head">${esc(G.news.t)}</div>${G.results?fxChips(G.news.fx):'<span class="muted">Welche Kurse betroffen sind, zeigt sich erst beim Würfeln.</span>'}</div>`;
+  return `<div class="news"><div class="kicker">Nachricht für Jahr ${G.year}</div><div class="head">${esc(G.news.t)}</div><p class="newsd">${esc(G.news.d)}</p>${G.results?fxChips(G.news.fx):'<span class="muted">Welche Kurse betroffen sind, zeigt sich erst beim Würfeln.</span>'}</div>`;
 }
 function viewNews(){
   return `<div class="card">
