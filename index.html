@@ -91,13 +91,13 @@ svg text{fill:var(--muted);font-size:11px}
 <script>
 "use strict";
 /* ============ Konstanten & Daten ============ */
-const FEE = 50, START = 10000, ROUNDS = 8, CREDIT_MAX = 5000, RATE = 0.10, MAXP = 300, INFL = 0.02;
+const FEE = 50, START = 10000, ROUNDS = 8, CREDIT_MAX = 5000, RATE = 0.10, ROLLS = 3, INFL = 0.02;
 
 const ASSETS = [
   {id:'spar',   name:'Sparkonto',        color:'#64748b', fixed:1, desc:'Sicher, aber kaum Rendite – Inflation frisst den Gewinn.'},
-  {id:'etf',    name:'ETF / Indexfonds', color:'#0d9488', die:[-10,-5,5,8,10,12], desc:'Breit gestreut, schwankt mässig, langfristig solide.'},
-  {id:'aktie',  name:'Aktie',            color:'#7c3aed', die:[-25,-10,0,10,20,35], desc:'Eine einzelne Firma: höhere Chance, höheres Risiko.'},
-  {id:'krypto', name:'Krypto',           color:'#ea580c', die:[-60,-30,-10,20,60,150], desc:'Extreme Schwankung, Totalverlust möglich.'},
+  {id:'etf',    name:'ETF / Indexfonds', color:'#0d9488', die:[-3,-2,2,3,3,4], desc:'Breit gestreut, schwankt mässig, langfristig solide.'},
+  {id:'aktie',  name:'Aktie',            color:'#7c3aed', die:[-8,-3,0,3,7,12], desc:'Eine einzelne Firma: höhere Chance, höheres Risiko.'},
+  {id:'krypto', name:'Krypto',           color:'#ea580c', die:[-20,-10,-3,7,20,50], desc:'Extreme Schwankung, Totalverlust möglich.'},
 ];
 const A = Object.fromEntries(ASSETS.map(a=>[a.id,a]));
 const NEWS = [
@@ -319,7 +319,7 @@ act.roll = () => {
   if (G.rolling) return;
   G.rolling = true; render();
   const iv = setInterval(()=>{
-    for (const a of ASSETS){ if (!a.die) continue; const el = document.getElementById('die-'+a.id); if (el) el.textContent = pct(a.die[rnd(6)]); }
+    for (const a of ASSETS){ if (!a.die) continue; for (let k=0;k<ROLLS;k++){ const el = document.getElementById(`die-${a.id}-${k}`); if (el) el.textContent = pct(a.die[rnd(6)]); } }
   }, 70);
   setTimeout(()=>{ clearInterval(iv); computeMarket(); G.rolling=false; render(); }, 1100);
 };
@@ -332,12 +332,12 @@ function computeMarket(){
     if (a.fixed){ change = a.fixed; }
     else {
       news = G.news.fx[a.id] || 0;
-      dice = a.die[rnd(6)];
+      dice = Array.from({length:ROLLS}, ()=>a.die[rnd(6)]);   // jede Runde 3× würfeln
       panic = panicFor(a.id) ? -10 : 0;
-      change = news + dice + panic;
+      change = news + dice.reduce((x,y)=>x+y,0) + panic;
     }
     let nw = old <= 0 ? 0 : old * (1 + change/100);
-    nw = Math.min(MAXP, Math.max(0, nw));
+    nw = Math.max(0, nw);   // keine Obergrenze
     if (nw < 1) nw = 0;
     G.prices[a.id] = nw;
     G.hist[a.id].push(nw);
@@ -435,7 +435,8 @@ function viewSetup(){
           <li><b>Halten lohnt sich:</b> Wer eine Anlage 3 Jahre nicht verkauft, erhält 5 % Bonus (Sparkonto ausgenommen).</li>
           <li><b>Kredit:</b> Bis CHF 5'000 leihen, 10 % Zins pro Jahr.</li>
           <li><b>Kein Bargeld für die Kreditzinsen?</b> Dann werden Anlagen automatisch verkauft – egal zu welchem Kurs.</li>
-          <li>Kurse bewegen sich zwischen 0 % und 300 % (Start: 100 %). Fällt ein Kurs auf 0, ist die Anlage wertlos.</li>
+          <li><b>Markt:</b> Jede Runde wird jeder Würfel <b>dreimal</b> geworfen; die drei Würfe und die Nachricht werden addiert.</li>
+          <li>Kurse starten bei 100 % und haben keine Obergrenze. Fällt ein Kurs auf 0, ist die Anlage wertlos.</li>
           <li><b>Ende:</b> Alles wird verkauft, Kredite zurückbezahlt. Punkte = Endvermögen + Bonus fürs geheime Anlageziel. Wer Schulden hat, scheidet aus.</li>
         </ul>
         <h3>Die Anlagen und ihre Würfel</h3>
@@ -459,17 +460,18 @@ function sparkline(vals, color){
 }
 function viewBoard(){
   return `<aside class="card">
-    <div class="between"><h2 style="margin:0">Kurstafel</h2><span class="muted" style="font-size:12px">0 – 300 %</span></div>
+    <div class="between"><h2 style="margin:0">Kurstafel</h2><span class="muted" style="font-size:12px">Start = 100 %</span></div>
     ${ASSETS.map(a=>{
       const p = G.prices[a.id], ch = G.lastChange[a.id];
+      const scale = Math.max(200, ...ASSETS.map(x=>G.prices[x.id]));
       return `<div class="board-row" title="${esc(a.desc)}">
         <div class="between">
           <span><span class="dot" style="background:${a.color}"></span><b>${a.name}</b></span>
           <span class="num"><b>${p.toFixed(1)} %</b> ${ch!==undefined?`<span class="${cls(ch)}" style="font-size:12px">${pct(ch)}</span>`:''}</span>
         </div>
         <div class="between" style="align-items:flex-end">
-          <div style="flex:1"><div class="bar"><i style="width:${p/MAXP*100}%;background:${a.color}"></i><b></b></div>
-          <div class="faces">${a.die?'🎲 '+a.die.map(d=>(d>0?'+':'')+d).join(' · '):'immer +1 %'}</div></div>
+          <div style="flex:1"><div class="bar"><i style="width:${p/scale*100}%;background:${a.color}"></i><b style="left:${100/scale*100}%"></b></div>
+          <div class="faces">${a.die?'🎲 3× '+a.die.map(d=>(d>0?'+':'')+d).join(' · '):'immer +1 %'}</div></div>
           ${sparkline(G.hist[a.id], a.color)}
         </div>
       </div>`;}).join('')}
@@ -482,7 +484,7 @@ function viewNews(){
   return `<div class="card">
     <h2>1 · Nachricht aufdecken</h2>
     ${newsBox()}
-    <p class="muted">Diese Nachricht gilt für das ganze Jahr ${G.year}. Ihre Wirkung wird beim Würfeln zum Würfelergebnis addiert.
+    <p class="muted">Diese Nachricht gilt für das ganze Jahr ${G.year}. Ihre Wirkung wird zu den drei Würfen addiert.
     ${G.news.fx.aktie && !G.news.fx.etf ? '<br><b>Firmen-Nachricht:</b> Trifft nur die Einzelaktie – wer breit gestreut hat (ETF), verliert weniger.' : ''}</p>
     <button class="primary" onclick="act.startTrading()">Zum Handeln →</button>
   </div>
@@ -557,7 +559,7 @@ function viewMarket(){
     return `<tr>
       <td><span class="dot" style="background:${a.color}"></span>${a.name}</td>
       <td class="r num ${cls(a.fixed?0:(G.news.fx[a.id]||0))}">${a.fixed?'–':pct(G.news.fx[a.id]||0)}</td>
-      <td class="r"><span class="die" id="die-${a.id}" style="border-color:${a.color}">${a.fixed?'+1 %':r?pct(r.dice):'?'}</span></td>
+      <td class="r"><div class="row" style="justify-content:flex-end;flex-wrap:nowrap;gap:4px">${a.fixed?`<span class="die" style="border-color:${a.color}">+1 %</span>`:Array.from({length:ROLLS},(_,k)=>`<span class="die" id="die-${a.id}-${k}" style="border-color:${a.color}">${r?pct(r.dice[k]):'?'}</span>`).join('')}</div></td>
       <td class="r num">${panic?`<span class="panic" title="${sellCount} von ${G.players.length} haben verkauft">−10 % 😱</span>`:'<span class="muted">–</span>'}</td>
       <td class="r num ${r?cls(r.change):''}"><b>${r?pct(r.change):''}</b></td>
       <td class="r num">${r?`${r.old.toFixed(1)} → <b>${r.nw.toFixed(1)} %</b>`:`${G.prices[a.id].toFixed(1)} %`}</td>
@@ -567,7 +569,7 @@ function viewMarket(){
     <h2>3 · Markt würfeln${res?' – Ergebnis':''}</h2>
     ${panicked.length?`<div class="flash">😱 <b>Herdentrieb!</b> Mehr als die Hälfte hat ${panicked.map(a=>a.name).join(', ')} verkauft – zusätzlich −10 %.</div>`:''}
     <div class="tablewrap"><table>
-      <tr><th>Anlage</th><th class="r">Nachricht</th><th class="r">Würfel</th><th class="r">Panik</th><th class="r">Total</th><th class="r">Kurs</th></tr>
+      <tr><th>Anlage</th><th class="r">Nachricht</th><th class="r">Würfel (3×)</th><th class="r">Panik</th><th class="r">Total</th><th class="r">Kurs</th></tr>
       ${rows}
     </table></div>
     <div style="margin-top:14px">
