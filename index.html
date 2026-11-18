@@ -1,104 +1,251 @@
-<!doctype html>
-<html lang="de">
-<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Börsenfieber</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
+/* Layout: Börsensaal – links der Spieltisch (Nachricht, Handel, Würfel), rechts die Fallblatt-Kurstafel wie am Bahnhof; darüber ein Laufband mit den Kursen. */
 :root{
-  --bg:#f4f2ec; --surface:#ffffff; --surface2:#efece4; --text:#1c1c1e; --muted:#6a6a70;
-  --border:#e0dcd2; --accent:#0f766e; --accent-ink:#ffffff; --accent-soft:#d8efec;
-  --pos:#15803d; --neg:#b91c1c; --warn:#b45309; --warn-soft:#fdf0dc;
-  --shadow:0 1px 2px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.05);
+  --paper:#ECEFF3; --surface:#FFFFFF; --surface-2:#E2E7EE; --ink:#121722; --muted:#586274; --line:#D2D9E2;
+  --accent:#1F4FD8; --accent-ink:#FFFFFF; --accent-soft:#DCE4FB;
+  --gain:#11804C; --loss:#C93428; --warn:#9A5B00; --warn-soft:#FBEFD9;
+  --board:#161A21; --board-2:#212732; --flap:#2B313C; --flap-hi:#353C49; --flap-ink:#F4F1E6; --board-muted:#8C95A5; --amber:#F2B233;
+  --board-gain:#4ADE95; --board-loss:#FF7A6B;
+  --shadow:0 1px 2px rgba(18,23,34,.06),0 8px 24px rgba(18,23,34,.07);
+  --font-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --font-body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --r:14px;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#121314; --surface:#1c1d20; --surface2:#26272b; --text:#ececee; --muted:#9b9ba3;
-    --border:#33343a; --accent:#2dd4bf; --accent-ink:#06201d; --accent-soft:#163b37;
-    --pos:#4ade80; --neg:#f87171; --warn:#fbbf24; --warn-soft:#3a2d12;
-    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
+    --paper:#0E1117; --surface:#171B23; --surface-2:#222835; --ink:#E8ECF2; --muted:#98A2B3; --line:#2A3140;
+    --accent:#7D9BFF; --accent-ink:#0A1022; --accent-soft:#1D2747;
+    --gain:#3DD68C; --loss:#FF6B5E; --warn:#F2B233; --warn-soft:#3A2C0E;
+    --board:#090C11; --board-2:#131821; --flap:#1D232D; --flap-hi:#262D39;
+    --shadow:0 1px 2px rgba(0,0,0,.35),0 8px 24px rgba(0,0,0,.3);
+    color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#121314; --surface:#1c1d20; --surface2:#26272b; --text:#ececee; --muted:#9b9ba3;
-  --border:#33343a; --accent:#2dd4bf; --accent-ink:#06201d; --accent-soft:#163b37;
-  --pos:#4ade80; --neg:#f87171; --warn:#fbbf24; --warn-soft:#3a2d12;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
+  --paper:#0E1117; --surface:#171B23; --surface-2:#222835; --ink:#E8ECF2; --muted:#98A2B3; --line:#2A3140;
+  --accent:#7D9BFF; --accent-ink:#0A1022; --accent-soft:#1D2747;
+  --gain:#3DD68C; --loss:#FF6B5E; --warn:#F2B233; --warn-soft:#3A2C0E;
+  --board:#090C11; --board-2:#131821; --flap:#1D232D; --flap-hi:#262D39;
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 8px 24px rgba(0,0,0,.3);
+  color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:7px 12px}
-button:hover:not(:disabled){border-color:var(--accent)}
-button:disabled{opacity:.4;cursor:not-allowed}
-button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600;padding:10px 18px}
-button.small{padding:4px 9px;font-size:13px}
-button.chip.on{background:var(--accent-soft);border-color:var(--accent)}
-input,select{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 9px}
-header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--surface)}
-header.top h1{font-size:19px;margin:0;letter-spacing:-.01em}
-header.top .yr{color:var(--muted);font-variant-numeric:tabular-nums}
-.wrap{max-width:1240px;margin:0 auto;padding:20px 16px 40px}
-.grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
-@media (max-width:920px){.grid{grid-template-columns:minmax(0,1fr)}}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
-.card+.card{margin-top:16px}
-h2{font-size:20px;margin:0 0 12px;letter-spacing:-.01em}
-h3{font-size:15px;margin:0 0 8px}
+body{background:var(--paper);color:var(--ink);font:15px/1.5 var(--font-body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0;letter-spacing:-.015em}
+h2{font-size:24px;font-weight:700}
+h3{font-size:16px;font-weight:700}
+p{margin:0}
 .muted{color:var(--muted)}
-.pos{color:var(--pos)} .neg{color:var(--neg)}
-.num{font-variant-numeric:tabular-nums;white-space:nowrap}
-table{width:100%;border-collapse:collapse}
-th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--border);vertical-align:middle}
-th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600}
-td.r,th.r{text-align:right}
-.tablewrap{overflow-x:auto}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:middle}
+.gain{color:var(--gain)} .loss{color:var(--loss)}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.label{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+
+/* ---------- Knöpfe ---------- */
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 14px;
+  transition:transform .15s ease,border-color .15s,background .15s,box-shadow .15s}
+button:hover:not(:disabled){border-color:var(--accent);transform:translateY(-1px)}
+button:active:not(:disabled){transform:translateY(1px) scale(.98)}
+button:disabled{opacity:.38;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn-main{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600;padding:12px 22px;font-size:16px;
+  box-shadow:0 4px 0 color-mix(in srgb,var(--accent) 55%,#000);}
+.btn-main:hover:not(:disabled){box-shadow:0 6px 0 color-mix(in srgb,var(--accent) 55%,#000)}
+.btn-main:active:not(:disabled){box-shadow:0 1px 0 color-mix(in srgb,var(--accent) 55%,#000);transform:translateY(3px)}
+.btn-sm{padding:5px 11px;font-size:13px;border-radius:8px}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:600}
+input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+
+/* ---------- Kopf & Laufband ---------- */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1260px;margin:0 auto;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand h1{font-size:22px;font-weight:800}
+.brand svg{width:34px;height:24px}
+.brand .fever{fill:none;stroke:var(--loss);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:80;stroke-dashoffset:0}
+.enter-brand .fever{animation:draw 1.2s ease-out both}
+@keyframes draw{from{stroke-dashoffset:80}to{stroke-dashoffset:0}}
+.progress{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.years{display:flex;gap:4px;align-items:center}
+.years i{width:9px;height:9px;border-radius:3px;background:var(--surface-2);border:1px solid var(--line);transition:background .3s}
+.years i.done{background:var(--accent);border-color:var(--accent)}
+.years i.now{background:var(--amber);border-color:var(--amber);transform:scale(1.25)}
+.steps{display:flex;gap:4px;font-size:13px}
+.steps span{padding:3px 10px;border-radius:99px;color:var(--muted)}
+.steps span.on{background:var(--ink);color:var(--surface);font-weight:600}
+.ticker{background:var(--board);color:var(--flap-ink);overflow:hidden;white-space:nowrap;font-family:var(--font-mono);font-size:13px;border-bottom:1px solid #000}
+.ticker-track{display:inline-flex;gap:0;padding-block:7px;animation:tick 38s linear infinite}
+.ticker-track span{padding:0 22px;border-right:1px solid #ffffff1a}
+.ticker b{color:var(--amber);font-weight:600}
+.ticker .up{color:var(--board-gain)} .ticker .dn{color:var(--board-loss)}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ---------- Seite ---------- */
+.wrap{max-width:1260px;margin:0 auto;padding-block:24px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:24px;align-items:start}
+.grid>main{min-width:0;display:flex;flex-direction:column;gap:18px}
+@media (max-width:960px){.grid{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);min-width:0}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.between{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}
-.stat{background:var(--surface2);border-radius:10px;padding:10px 12px}
-.stat .l{font-size:12px;color:var(--muted)}
-.stat .v{font-size:19px;font-weight:650;font-variant-numeric:tabular-nums}
-.news{border-left:5px solid var(--accent);background:var(--surface2);border-radius:10px;padding:16px 18px;margin:8px 0 14px}
-.news .kicker{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-.news .newsd{margin:0 0 10px;max-width:62ch}
-.news .head{font-size:22px;font-weight:700;margin:4px 0 6px;letter-spacing:-.01em}
-.fx{display:inline-block;padding:2px 8px;border-radius:999px;font-size:13px;background:var(--surface);border:1px solid var(--border);margin:3px 4px 0 0}
-.goal{border:1px dashed var(--accent);border-radius:12px;padding:12px 14px;background:var(--accent-soft)}
-.goal.hidden{background:var(--surface2);border-color:var(--border);cursor:pointer;text-align:center}
-.flash{padding:9px 12px;border-radius:8px;background:var(--warn-soft);color:var(--warn);margin:10px 0}
-.die{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:30px;padding:0 6px;border-radius:7px;border:2px solid var(--border);font-weight:700;font-variant-numeric:tabular-nums;background:var(--surface)}
-.board-row{padding:9px 0;border-bottom:1px solid var(--border)}
-.board-row:last-child{border-bottom:0}
-.bar{height:7px;background:var(--surface2);border-radius:99px;overflow:hidden;margin-top:5px;position:relative}
-.bar i{display:block;height:100%;border-radius:99px}
-.bar b{position:absolute;left:33.33%;top:-2px;bottom:-2px;width:1px;background:var(--muted);opacity:.6}
-.faces{font-size:11px;color:var(--muted);margin-top:3px}
-.center{text-align:center}
-.big{font-size:42px;margin:6px 0}
-details summary{cursor:pointer;font-weight:600}
-details{margin-top:14px}
-.rules li{margin:3px 0}
-.log{font-size:13px;color:var(--muted);max-height:140px;overflow:auto;margin-top:8px}
-.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;margin-top:6px}
-.tag{font-size:11px;padding:1px 7px;border-radius:99px;background:var(--surface2);color:var(--muted);margin-left:6px}
-.panic{color:var(--neg);font-weight:600}
-svg text{fill:var(--muted);font-size:11px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:500}
+td.r,th.r{text-align:right}
+.tag{font-family:var(--font-mono);font-size:10.5px;padding:2px 7px;border-radius:99px;background:var(--surface-2);color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.flash{padding:10px 14px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-weight:500}
+.enter .flash{animation:shake .45s ease}
+@keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+
+/* ---------- Fallblatt-Kurstafel ---------- */
+.board{background:var(--board);color:var(--flap-ink);border-radius:18px;padding:20px 18px;box-shadow:0 18px 40px rgba(10,14,20,.28);position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px)}
+@media (max-width:960px){.board{position:static}}
+.board-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.board-head h2{color:var(--flap-ink);font-size:20px}
+.live{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;color:var(--amber);display:flex;align-items:center;gap:6px}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--amber);animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{50%{opacity:.25}}
+.brow{padding:12px 0;border-top:1px solid #ffffff14;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center}
+.bname{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--flap-ink);min-width:0}
+.bname .dot{width:8px;height:8px}
+.flaps{display:flex;gap:2px;justify-self:end}
+.fl{display:inline-flex;align-items:center;justify-content:center;width:19px;height:28px;border-radius:3px;font-family:var(--font-mono);font-weight:600;font-size:17px;
+  background:linear-gradient(var(--flap-hi) 0 49%,var(--flap) 51% 100%);color:var(--flap-ink);position:relative;box-shadow:inset 0 -1px 0 #0006}
+.fl::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:#00000080}
+.fl.pctsign{width:auto;padding:0 3px;font-size:12px;background:none;box-shadow:none;color:var(--board-muted)}
+.fl.pctsign::after{display:none}
+.fl.flip{animation:flip .5s cubic-bezier(.3,.6,.4,1) both}
+@keyframes flip{0%{transform:rotateX(0)}45%{transform:rotateX(90deg);filter:brightness(1.6)}55%{transform:rotateX(-90deg)}100%{transform:rotateX(0)}}
+.bmeta{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:11px;color:var(--board-muted)}
+.bchg{font-family:var(--font-mono);font-size:12px;justify-self:end;padding:1px 7px;border-radius:5px}
+.bchg.up{color:var(--board-gain);background:#4ade9518} .bchg.dn{color:var(--board-loss);background:#ff7a6b18}
+.spark{grid-column:1/-1;display:block;width:100%;height:34px}
+.board-foot{margin-top:10px;font-size:12px;color:var(--board-muted)}
+
+/* ---------- Zeitung (Nachrichtenkarte) ---------- */
+.paper{perspective:1400px}
+.paper-in{position:relative;transform-style:preserve-3d}
+.enter .paper-in{animation:cardflip .9s cubic-bezier(.2,.7,.2,1) both}
+@keyframes cardflip{0%{transform:rotateY(180deg) translateY(-12px)}100%{transform:rotateY(0)}}
+.paper-front,.paper-back{backface-visibility:hidden;border-radius:12px}
+.paper-front{background:var(--surface);border:1px solid var(--line);padding:20px 22px 22px;position:relative;}
+.paper-back{position:absolute;inset:0;transform:rotateY(180deg);background:var(--accent);display:grid;place-items:center;
+  background-image:repeating-linear-gradient(45deg,#ffffff14 0 10px,transparent 10px 20px)}
+.paper-back span{font-family:var(--font-display);font-weight:800;font-size:64px;color:var(--accent-ink)}
+.masthead{display:flex;justify-content:space-between;align-items:baseline;border-bottom:3px double var(--ink);padding-bottom:6px;margin-bottom:12px;gap:10px;flex-wrap:wrap}
+.masthead strong{font-family:var(--font-display);font-weight:800;font-size:20px;letter-spacing:-.01em}
+.headline{font-family:var(--font-display);font-weight:800;font-size:clamp(24px,3.2vw,34px);line-height:1.08;margin:4px 0 10px;text-wrap:balance}
+.lede{max-width:62ch;font-size:15.5px}
+.reveal-note{margin-top:14px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.reveal-note i{font-style:normal;display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;background:var(--surface-2);font-family:var(--font-mono);font-weight:600;color:var(--ink)}
+.fx-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.fx{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;font-size:13px;background:var(--surface-2);font-weight:500}
+.enter .fx{animation:pop .45s cubic-bezier(.3,1.6,.5,1) both}
+.enter .fx:nth-child(2){animation-delay:.08s}.enter .fx:nth-child(3){animation-delay:.16s}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* ---------- Handel ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:620px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{background:var(--surface-2);border-radius:12px;padding:10px 14px;min-width:0}
+.stat .v{font-family:var(--font-mono);font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.goal{border:2px dashed var(--line);border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;background:var(--surface);color:var(--ink);width:100%;text-align:left}
+.goal.open{border-style:solid;border-color:var(--accent);background:var(--accent-soft)}
+.goal .seal{font-family:var(--font-display);font-weight:800;font-size:20px;width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--ink);color:var(--surface);flex:none}
+.amounts{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.assets{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.arow{display:grid;grid-template-columns:minmax(140px,1.3fr) minmax(90px,.7fr) minmax(110px,.9fr) auto;gap:10px 14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.arow .nm{display:flex;align-items:center;gap:10px;font-weight:600;min-width:0}
+.arow .sub{font-size:12px;color:var(--muted);font-weight:400}
+.acts{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+.btn-buy{border-color:color-mix(in srgb,var(--gain) 45%,var(--line));color:var(--gain);font-weight:600}
+.btn-sell{color:var(--loss)}
+@media (max-width:620px){.arow{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,.8fr)}.arow .acts{grid-column:1/-1;justify-content:flex-start}}
+.log{font-family:var(--font-mono);font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:2px;max-height:150px;overflow:auto}
+.log div{animation:slidein .3s ease both}
+@keyframes slidein{from{transform:translateX(-8px);opacity:0}to{transform:none;opacity:1}}
+.credit{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;border-radius:12px;background:var(--surface-2)}
+
+/* ---------- Würfel ---------- */
+.dice{display:flex;gap:6px;justify-content:flex-end}
+.die{width:54px;height:46px;border-radius:11px;display:grid;place-items:center;font-family:var(--font-mono);font-weight:600;font-size:14px;
+  background:var(--surface);border:2px solid var(--line);border-bottom-width:5px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.die.tumble{animation:tumble .35s linear infinite}
+.die.land{animation:land .5s cubic-bezier(.3,1.7,.5,1) both}
+@keyframes tumble{0%{transform:rotate(0) translateY(0)}25%{transform:rotate(14deg) translateY(-6px)}50%{transform:rotate(-8deg) translateY(0)}75%{transform:rotate(10deg) translateY(-4px)}100%{transform:rotate(0)}}
+@keyframes land{0%{transform:scale(1.35) rotate(-12deg)}100%{transform:scale(1) rotate(0)}}
+.mtable td{padding:12px 8px}
+.total{font-family:var(--font-mono);font-weight:600;font-size:16px}
+.enter .total{animation:pop .5s .1s cubic-bezier(.3,1.6,.5,1) both}
+.panic{color:var(--loss);font-weight:600;font-family:var(--font-mono)}
+.roll-zone{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:18px}
+
+/* ---------- Jahresabschluss & Ende ---------- */
+.delta-bar{height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden;width:100%;min-width:60px}
+.delta-bar i{display:block;height:100%;border-radius:99px;transform-origin:left}
+.enter .delta-bar i{animation:grow .9s .2s cubic-bezier(.2,.8,.2,1) both}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:12px;margin:12px 0 8px;min-height:230px}
+.pod{display:flex;flex-direction:column;align-items:center;gap:8px;width:min(150px,30%)}
+.pod .who{font-family:var(--font-display);font-weight:700;font-size:16px;text-align:center;overflow-wrap:anywhere}
+.pod .pts{font-family:var(--font-mono);font-size:13px;color:var(--muted)}
+.pod .block{width:100%;border-radius:12px 12px 4px 4px;display:grid;place-items:start center;padding-top:10px;font-family:var(--font-display);font-weight:800;font-size:34px;color:#fff;transform-origin:bottom}
+.enter .pod .block{animation:rise .9s cubic-bezier(.2,.9,.3,1.15) both}
+.enter .pod:nth-child(1) .block{animation-delay:.25s}.enter .pod:nth-child(3) .block{animation-delay:.45s}
+@keyframes rise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:20;width:100%;height:100%}
+
+/* ---------- Start ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:28px;align-items:center;margin-bottom:24px}
+@media (max-width:860px){.hero{grid-template-columns:minmax(0,1fr)}}
+.hero-txt h2{font-size:clamp(44px,7vw,78px);font-weight:800;line-height:.95;letter-spacing:-.035em}
+.hero-txt h2 em{font-style:normal;color:var(--loss)}
+.hero .pitch{font-size:18px;max-width:46ch;margin-top:16px;color:var(--muted)}
+.enter .hero-txt>*{animation:up .7s cubic-bezier(.2,.8,.2,1) both}
+.enter .hero-txt>*:nth-child(2){animation-delay:.1s}.enter .hero-txt>*:nth-child(3){animation-delay:.2s}
+@keyframes up{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+.players{display:flex;flex-direction:column;gap:8px}
+.player{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.player input{flex:1;min-width:120px}
+.rules{padding-left:20px;display:flex;flex-direction:column;gap:6px;margin:12px 0}
+details summary{cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:17px}
+.handover{text-align:center;padding:48px 22px}
+.avatar{width:84px;height:84px;border-radius:24px;margin:0 auto 16px;display:grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:38px;color:#fff}
+.enter .avatar{animation:pop .6s cubic-bezier(.3,1.6,.5,1) both}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+svg text{fill:var(--muted);font-family:var(--font-mono);font-size:11px}
+.enter main>*{animation:up .5s cubic-bezier(.2,.8,.2,1) both}
+.enter main>*:nth-child(2){animation-delay:.08s}.enter main>*:nth-child(3){animation-delay:.16s}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .ticker-track{animation:none}
+}
 </style>
-</head>
-<body>
 <div id="app"></div>
+<canvas id="confetti" hidden></canvas>
 <script>
 "use strict";
 /* ============ Konstanten & Daten ============ */
 const FEE = 50, START = 10000, ROUNDS = 8, CREDIT_MAX = 5000, RATE = 0.10, ROLLS = 3, INFL = 0.02;
 
 const ASSETS = [
-  {id:'spar',   name:'Sparkonto',        color:'#64748b', fixed:1, desc:'Sicher, aber kaum Rendite – Inflation frisst den Gewinn.'},
-  {id:'etf',    name:'ETF / Indexfonds', color:'#0d9488', die:[-3,-2,2,3,3,4], desc:'Breit gestreut, schwankt mässig, langfristig solide.'},
-  {id:'aktie',  name:'Aktie',            color:'#7c3aed', die:[-8,-3,0,3,7,12], desc:'Eine einzelne Firma: höhere Chance, höheres Risiko.'},
-  {id:'krypto', name:'Krypto',           color:'#ea580c', die:[-20,-10,-3,7,20,50], desc:'Extreme Schwankung, Totalverlust möglich.'},
+  {id:'spar',   name:'Sparkonto',        color:'#7A8699', fixed:1, desc:'Sicher, aber kaum Rendite – Inflation frisst den Gewinn.'},
+  {id:'etf',    name:'ETF / Indexfonds', color:'#14A3A0', die:[-3,-2,2,3,3,4], desc:'Breit gestreut, schwankt mässig, langfristig solide.'},
+  {id:'aktie',  name:'Aktie',            color:'#7B5CF0', die:[-8,-3,0,3,7,12], desc:'Eine einzelne Firma: höhere Chance, höheres Risiko.'},
+  {id:'krypto', name:'Krypto',           color:'#F08A24', die:[-20,-10,-3,7,20,50], desc:'Extreme Schwankung, Totalverlust möglich.'},
 ];
 const A = Object.fromEntries(ASSETS.map(a=>[a.id,a]));
 const NEWS = [
@@ -148,7 +295,7 @@ const BOT_TYPES = {
   ausgewogen:   {label:'Computer (ausgewogen)',    w:{spar:.2, etf:.5, aktie:.2, krypto:.1}, herd:.5},
   risikofreudig:{label:'Computer (risikofreudig)', w:{etf:.3, aktie:.4, krypto:.3}, herd:.3},
 };
-const PCOLORS = ['#0f766e','#7c3aed','#ea580c','#2563eb','#db2777','#ca8a04'];
+const PCOLORS = ['#1F4FD8','#D9468F','#14A37F','#E0782A','#8B5CF6','#C9A21A'];
 
 /* ============ Hilfsfunktionen ============ */
 const $ = s => document.querySelector(s);
@@ -156,10 +303,9 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 const fmt = n => { const r = Math.round(n); return (r<0?'−':'') + String(Math.abs(r)).replace(/\B(?=(\d{3})+(?!\d))/g, "'"); };
 const chf = n => 'CHF ' + fmt(n);
 const pct = (n, sign=true) => (n>0 && sign ? '+' : n<0 ? '−' : '') + Math.abs(Math.round(n*10)/10) + ' %';
-const cls = n => n>0 ? 'pos' : n<0 ? 'neg' : '';
+const cls = n => n>0 ? 'gain' : n<0 ? 'loss' : '';
 const rnd = n => Math.floor(Math.random()*n);
 const shuffle = arr => { const a = arr.slice(); for (let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];} return a; };
-const fxChips = fx => { const k = Object.keys(fx); return k.length ? k.map(id=>`<span class="fx"><span class="dot" style="background:${A[id].color}"></span>${A[id].name} <b class="${cls(fx[id])}">${pct(fx[id])}</b></span>`).join('') : '<span class="muted">Keine Auswirkungen auf die Kurse.</span>'; };
 
 /* ============ Spielzustand ============ */
 let G = null;
@@ -399,274 +545,407 @@ const setup = {
   del:i=>{ if (setupRows.length>1){ setupRows.splice(i,1); render(); } },
   start:()=>{ newGame(); },
 };
+const REDUCE = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; } };
+const initial = s => (String(s).trim()[0] || '?').toUpperCase();
+const fxChips = fx => {
+  const k = Object.keys(fx);
+  return k.length ? `<div class="fx-list">${k.map(id=>`<span class="fx"><span class="dot" style="background:${A[id].color}"></span>${A[id].name} <b class="num ${cls(fx[id])}">${pct(fx[id])}</b></span>`).join('')}</div>`
+                  : '<div class="fx-list"><span class="fx">Keine Auswirkungen auf die Kurse</span></div>';
+};
+
 function viewSetup(){
   const opts = t => `<option value="human" ${t==='human'?'selected':''}>Mensch</option>` +
     Object.entries(BOT_TYPES).map(([k,v])=>`<option value="${k}" ${t===k?'selected':''}>${v.label}</option>`).join('');
   return `
-  <div class="wrap" style="max-width:820px">
-    <div class="card">
-      <div class="center">
-        <div class="big">📈🎲</div>
-        <h2 style="font-size:28px">Börsenfieber</h2>
-        <p class="muted" style="max-width:560px;margin:0 auto 6px">«Investiere dein Geld klug in vier Anlagen – und überlebe Crashs, Hypes und das echte Leben, ohne dein Ziel aus den Augen zu verlieren.»</p>
-      </div>
-      <h3 style="margin-top:20px">Mitspielende (1–6)</h3>
-      <p class="muted" style="margin-top:0">Mehrere Menschen spielen abwechselnd am selben Gerät. Computer-Gegner machen die Panik-Regel spannender.</p>
+  <div class="hero">
+    <div class="hero-txt">
+      <span class="label">Ein Börsenspiel über 8 Jahre · ab CHF 10'000</span>
+      <h2>Börsen<em>fieber</em></h2>
+      <p class="pitch">Investiere dein Geld klug in vier Anlagen – und überlebe Crashs, Hypes und das echte Leben, ohne dein Ziel aus den Augen zu verlieren.</p>
+    </div>
+    ${viewBoard(true)}
+  </div>
+  <div class="grid" style="grid-template-columns:minmax(0,1fr)">
+  <main>
+    <section class="card">
+      <div class="card-head"><h2>Wer spielt mit?</h2><span class="label">1 – 6 Personen</span></div>
+      <p class="muted" style="margin-bottom:14px">Mehrere Menschen spielen abwechselnd am selben Gerät. Computer-Gegner machen die Panik-Regel spannender.</p>
+      <div class="players">
       ${setupRows.map((r,i)=>`
-        <div class="row" style="margin-bottom:8px">
-          <span class="dot" style="background:${PCOLORS[i]}"></span>
-          <input style="flex:1;min-width:120px" value="${esc(r.name)}" maxlength="18" oninput="setup.name(${i},this.value)">
-          <select onchange="setup.type(${i},this.value)">${opts(r.type)}</select>
-          <button class="small" onclick="setup.del(${i})" ${setupRows.length<2?'disabled':''} aria-label="Entfernen">✕</button>
+        <div class="player">
+          <span class="dot" style="background:${PCOLORS[i]};width:14px;height:14px"></span>
+          <input id="pname-${i}" value="${esc(r.name)}" maxlength="18" oninput="setup.name(${i},this.value)" aria-label="Name ${i+1}">
+          <select id="ptype-${i}" onchange="setup.type(${i},this.value)" aria-label="Art ${i+1}">${opts(r.type)}</select>
+          <button class="btn-sm" onclick="setup.del(${i})" ${setupRows.length<2?'disabled':''} aria-label="Person entfernen">✕</button>
         </div>`).join('')}
-      <div class="between" style="margin-top:12px">
-        <button onclick="setup.add()" ${setupRows.length>=6?'disabled':''}>+ Person hinzufügen</button>
-        <button class="primary" onclick="setup.start()">Spiel starten</button>
       </div>
-      <details>
+      <div class="row" style="justify-content:space-between;margin-top:18px">
+        <button onclick="setup.add()" ${setupRows.length>=6?'disabled':''}>+ Person hinzufügen</button>
+        <button class="btn-main" onclick="setup.start()">Spiel starten</button>
+      </div>
+      <details style="margin-top:22px">
         <summary>Spielregeln</summary>
         <ul class="rules">
           <li>Alle starten mit <b>CHF 10'000</b> und spielen <b>8 Runden</b> (= 8 Jahre).</li>
-          <li><b>Jede Runde:</b> 1. Nachricht aufdecken → 2. Handeln (jede Transaktion kostet CHF 50) → 3. Markt würfeln (Nachricht + Würfel) → 4. Panik-Regel.</li>
+          <li><b>Jede Runde:</b> Nachricht aufdecken → Handeln (jede Transaktion kostet CHF 50) → Markt würfeln → Panik-Regel.</li>
           <li><b>Vier Anlagen:</b> Sparkonto, ETF, Aktie und Krypto – von sicher bis extrem riskant.</li>
+          <li><b>Nachricht:</b> Welche Kurse sie trifft, zeigt sich erst beim Würfeln.</li>
+          <li><b>Markt:</b> Jeder Würfel wird <b>dreimal</b> geworfen; die drei Würfe und die Nachricht werden addiert.</li>
           <li><b>Panik-Regel:</b> Verkauft mehr als die Hälfte der Personen dieselbe Anlage, fällt ihr Kurs zusätzlich um 10 %.</li>
           <li><b>Halten lohnt sich:</b> Wer eine Anlage 3 Jahre nicht verkauft, erhält 5 % Bonus (Sparkonto ausgenommen).</li>
-          <li><b>Kredit:</b> Bis CHF 5'000 leihen, 10 % Zins pro Jahr.</li>
-          <li><b>Kein Bargeld für die Kreditzinsen?</b> Dann werden Anlagen automatisch verkauft – egal zu welchem Kurs.</li>
-          <li><b>Markt:</b> Jede Runde wird jeder Würfel <b>dreimal</b> geworfen; die drei Würfe und die Nachricht werden addiert.</li>
+          <li><b>Kredit:</b> Bis CHF 5'000 leihen, 10 % Zins pro Jahr. Fehlt Bargeld für die Zinsen, werden Anlagen automatisch verkauft.</li>
           <li>Kurse starten bei 100 % und haben keine Obergrenze. Fällt ein Kurs auf 0, ist die Anlage wertlos.</li>
           <li><b>Ende:</b> Alles wird verkauft, Kredite zurückbezahlt. Punkte = Endvermögen + Bonus fürs geheime Anlageziel. Wer Schulden hat, scheidet aus.</li>
         </ul>
-        <h3>Die Anlagen und ihre Würfel</h3>
         <div class="tablewrap"><table>
           <tr><th>Anlage</th><th>Würfelseiten</th><th>Was man lernt</th></tr>
-          ${ASSETS.map(a=>`<tr><td><span class="dot" style="background:${a.color}"></span>${a.name}</td><td class="num">${a.die?a.die.map(d=>pct(d)).join(', '):'immer +1 %'}</td><td class="muted">${a.desc}</td></tr>`).join('')}
+          ${ASSETS.map(a=>`<tr><td><span class="row"><span class="dot" style="background:${a.color}"></span>${a.name}</span></td><td class="num">${a.die?a.die.map(d=>pct(d)).join(', '):'immer +1 %'}</td><td class="muted">${a.desc}</td></tr>`).join('')}
         </table></div>
-        <h3 style="margin-top:14px">Geheime Anlageziele</h3>
+        <h3 style="margin-top:16px">Geheime Anlageziele</h3>
         <ul class="rules">${GOALS.map(g=>`<li><b>${g.name}:</b> ${g.text} → +${fmt(g.bonus)} Punkte</li>`).join('')}</ul>
       </details>
-    </div>
-  </div>`;
+    </section>
+  </main></div>`;
 }
 
-/* ============ Ansichten ============ */
-function sparkline(vals, color){
-  const w=110, h=26, max=Math.max(...vals,1), min=Math.min(...vals,0);
-  const n = Math.max(ROUNDS, vals.length-1);
-  const pts = vals.map((v,i)=>`${(i/n*w).toFixed(1)},${(h-2-(v-min)/(max-min||1)*(h-4)).toFixed(1)}`).join(' ');
-  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+/* ============ Fallblatt & Grafiken ============ */
+const shownFlaps = {};
+function flaps(key, str){
+  const prev = shownFlaps[key];
+  shownFlaps[key] = str;
+  return [...str].map((c,i)=>{
+    const flip = (prev===undefined || prev[i]!==c) && !REDUCE();
+    return `<span class="fl${flip?' flip':''}" style="animation-delay:${i*70}ms">${c===' '?'&nbsp;':c}</span>`;
+  }).join('') + '<span class="fl pctsign">%</span>';
 }
-function viewBoard(){
-  return `<aside class="card">
-    <div class="between"><h2 style="margin:0">Kurstafel</h2><span class="muted" style="font-size:12px">Start = 100 %</span></div>
+function sparkline(vals, color, id){
+  const w=300, h=34, max=Math.max(...vals), min=Math.min(...vals);
+  const span = (max-min) || 1, n = Math.max(ROUNDS, vals.length-1);
+  const X = i => (i/n*(w-6)+3).toFixed(1), Y = v => (h-4-(v-min)/span*(h-10)).toFixed(1);
+  const pts = vals.map((v,i)=>`${X(i)},${Y(v)}`).join(' ');
+  const last = vals.length-1;
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">
+    <defs><linearGradient id="g-${id}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".35"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+    ${vals.length>1?`<polygon points="${X(0)},${h} ${pts} ${X(last)},${h}" fill="url(#g-${id})"/>`:''}
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+    <circle cx="${X(last)}" cy="${Y(vals[last])}" r="3" fill="${color}"/>
+  </svg>`;
+}
+function viewBoard(demo){
+  const prices = demo ? Object.fromEntries(ASSETS.map(a=>[a.id,100])) : G.prices;
+  return `<aside class="board" aria-label="Kurstafel">
+    <div class="board-head"><h2>Kurstafel</h2><span class="live"><i></i>${demo?'BEREIT':`JAHR ${G.year}`}</span></div>
     ${ASSETS.map(a=>{
-      const p = G.prices[a.id], ch = G.lastChange[a.id];
-      const scale = Math.max(200, ...ASSETS.map(x=>G.prices[x.id]));
-      return `<div class="board-row" title="${esc(a.desc)}">
-        <div class="between">
-          <span><span class="dot" style="background:${a.color}"></span><b>${a.name}</b></span>
-          <span class="num"><b>${p.toFixed(1)} %</b> ${ch!==undefined?`<span class="${cls(ch)}" style="font-size:12px">${pct(ch)}</span>`:''}</span>
-        </div>
-        <div class="between" style="align-items:flex-end">
-          <div style="flex:1"><div class="bar"><i style="width:${p/scale*100}%;background:${a.color}"></i><b style="left:${100/scale*100}%"></b></div>
-          <div class="faces">${a.die?'🎲 3× '+a.die.map(d=>(d>0?'+':'')+d).join(' · '):'immer +1 %'}</div></div>
-          ${sparkline(G.hist[a.id], a.color)}
-        </div>
+      const p = prices[a.id], ch = demo ? undefined : G.lastChange[a.id];
+      const hist = demo ? [100,100] : G.hist[a.id];
+      return `<div class="brow" title="${esc(a.desc)}">
+        <span class="bname"><span class="dot" style="background:${a.color}"></span>${a.name}</span>
+        <span class="flaps" aria-label="${p.toFixed(1)} Prozent">${flaps((demo?'d-':'')+a.id, p.toFixed(1).padStart(5,' '))}</span>
+        <span class="bmeta">${a.die?'🎲 3× '+a.die.map(d=>(d>0?'+':'')+d).join(' '):'fix +1 % pro Jahr'}</span>
+        ${ch!==undefined?`<span class="bchg ${ch>=0?'up':'dn'}">${ch>=0?'▲':'▼'} ${pct(ch)}</span>`:'<span></span>'}
+        ${demo||hist.length<2?'':sparkline(hist, a.color, a.id)}
       </div>`;}).join('')}
+    <p class="board-foot">Start = 100 % · Kurse in Prozent des Startwerts</p>
   </aside>`;
 }
-function newsBox(){
-  return `<div class="news"><div class="kicker">Nachricht für Jahr ${G.year}</div><div class="head">${esc(G.news.t)}</div><p class="newsd">${esc(G.news.d)}</p>${G.results?fxChips(G.news.fx):'<span class="muted">Welche Kurse betroffen sind, zeigt sich erst beim Würfeln.</span>'}</div>`;
+function tickerHTML(){
+  const items = ASSETS.map(a=>{
+    const p = G ? G.prices[a.id] : 100, ch = G ? G.lastChange[a.id] : undefined;
+    return `<span><b>${a.name.toUpperCase()}</b> ${p.toFixed(1)} % ${ch===undefined?'':`<span class="${ch>=0?'up':'dn'}">${ch>=0?'▲':'▼'} ${pct(ch)}</span>`}</span>`;
+  });
+  if (G && G.news && G.phase!=='end') items.push(`<span><b>EILMELDUNG</b> ${esc(G.news.t)}</span>`);
+  items.push(`<span><b>GEBÜHR</b> CHF 50 pro Transaktion</span>`, `<span><b>KREDITZINS</b> 10 % pro Jahr</span>`);
+  const one = items.join('');
+  return `<div class="ticker" aria-hidden="true"><div class="ticker-track">${one}${one}</div></div>`;
+}
+
+/* ============ Spielansichten ============ */
+function newsCard(){
+  return `<div class="paper"><div class="paper-in">
+    <div class="paper-front">
+      <div class="masthead"><strong>Börsenblatt</strong><span class="label">Jahr ${G.year} von ${ROUNDS} · Ausgabe ${G.year}</span></div>
+      <div class="headline">${esc(G.news.t)}</div>
+      <p class="lede">${esc(G.news.d)}</p>
+      ${G.results ? fxChips(G.news.fx) : `<p class="reveal-note"><i>?</i>Welche Kurse betroffen sind, zeigt sich erst beim Würfeln.</p>`}
+    </div>
+    <div class="paper-back" aria-hidden="true"><span>?</span></div>
+  </div></div>`;
 }
 function viewNews(){
-  return `<div class="card">
-    <h2>1 · Nachricht aufdecken</h2>
-    ${newsBox()}
-    <p class="muted">Diese Nachricht gilt für das ganze Jahr ${G.year}. Überlege selbst, welche Anlagen davon profitieren oder leiden könnten – aufgedeckt wird erst beim Würfeln, dann wird die Wirkung zu den drei Würfen addiert.
-</p>
-    <button class="primary" onclick="act.startTrading()">Zum Handeln →</button>
-  </div>
+  return `<section class="card">
+    <div class="card-head"><h2>Die Nachricht des Jahres</h2><span class="label">Schritt 1 von 3</span></div>
+    ${newsCard()}
+    <p class="muted" style="margin:16px 0">Diese Nachricht gilt für das ganze Jahr ${G.year}. Überlege, welche Anlagen davon profitieren oder leiden könnten – ihre Wirkung wird beim Würfeln zu den drei Würfen addiert.</p>
+    <button class="btn-main" onclick="act.startTrading()">Zum Handeln →</button>
+  </section>
   ${standings()}`;
 }
 function viewHandover(){
   const p = cur();
-  return `<div class="card center" style="padding:40px 18px">
-    <div class="big">🤫</div>
+  return `<section class="card handover">
+    <div class="avatar" style="background:${p.color}">${esc(initial(p.name))}</div>
     <h2>Gib das Gerät an <span style="color:${p.color}">${esc(p.name)}</span></h2>
-    <p class="muted">Alle anderen bitte wegschauen – Depot und Anlageziel sind geheim.</p>
-    <button class="primary" onclick="act.beginTurn()">Ich bin ${esc(p.name)} – los geht's</button>
-  </div>`;
+    <p class="muted" style="margin:10px 0 22px">Alle anderen bitte wegschauen – Depot und Anlageziel sind geheim.</p>
+    <button class="btn-main" onclick="act.beginTurn()">Ich bin ${esc(p.name)} – los geht's</button>
+  </section>`;
 }
 function goalCard(p){
-  if (!G.showGoal) return `<div class="goal hidden" onclick="act.toggleGoal()">🔒 Geheimes Anlageziel – <u>antippen zum Aufdecken</u></div>`;
-  return `<div class="goal" onclick="act.toggleGoal()" style="cursor:pointer"><b>🎯 ${p.goal.name}</b> (+${fmt(p.goal.bonus)} Punkte)<br>${p.goal.text}
-    <div class="muted" style="font-size:12px;margin-top:4px">Antippen zum Verdecken</div></div>`;
+  if (!G.showGoal) return `<button class="goal" onclick="act.toggleGoal()"><span class="seal">?</span><span><b>Geheimes Anlageziel</b><br><span class="muted">Antippen zum Aufdecken</span></span></button>`;
+  return `<button class="goal open" onclick="act.toggleGoal()"><span class="seal" style="background:var(--accent);color:var(--accent-ink)">★</span>
+    <span><b>${p.goal.name}</b> · +${fmt(p.goal.bonus)} Punkte<br>${p.goal.text}<br><span class="muted" style="font-size:12px">Antippen zum Verdecken</span></span></button>`;
 }
 function viewTrade(){
   const p = cur(), net = netWorth(p);
   const amts = [500,1000,2000,5000];
-  return `<div class="card">
-    <div class="between"><h2 style="margin:0">2 · Handeln: <span style="color:${p.color}">${esc(p.name)}</span></h2>
-      <button class="primary" onclick="act.endTurn()">Fertig ✓</button></div>
+  return `<section class="card" style="display:flex;flex-direction:column;gap:16px">
+    <div class="card-head" style="margin:0">
+      <div class="row" style="gap:12px"><span class="avatar" style="width:44px;height:44px;border-radius:13px;font-size:20px;margin:0;background:${p.color}">${esc(initial(p.name))}</span>
+        <div><span class="label">Schritt 2 von 3 · Handeln</span><h2>${esc(p.name)}</h2></div></div>
+      <button class="btn-main" onclick="act.endTurn()">Fertig ✓</button>
+    </div>
     <div class="stats">
-      <div class="stat"><div class="l">Bargeld</div><div class="v ${p.cash<0?'neg':''}">${chf(p.cash)}</div></div>
-      <div class="stat"><div class="l">Angelegt</div><div class="v">${chf(invested(p))}</div></div>
-      <div class="stat"><div class="l">Kredit</div><div class="v ${p.debt?'neg':''}">${chf(p.debt)}</div></div>
-      <div class="stat"><div class="l">Vermögen</div><div class="v">${chf(net)}</div></div>
+      <div class="stat"><span class="label">Bargeld</span><div class="v ${p.cash<0?'loss':''}">${chf(p.cash)}</div></div>
+      <div class="stat"><span class="label">Angelegt</span><div class="v">${chf(invested(p))}</div></div>
+      <div class="stat"><span class="label">Kredit</span><div class="v ${p.debt?'loss':''}">${chf(p.debt)}</div></div>
+      <div class="stat"><span class="label">Vermögen</span><div class="v">${chf(net)}</div></div>
     </div>
     ${goalCard(p)}
-    ${newsBox()}
-    <div class="row" style="margin:6px 0 4px">
-      <span class="muted">Betrag:</span>
-      ${amts.map(a=>`<button class="small chip ${G.amt===a?'on':''}" onclick="act.setAmt(${a})">${fmt(a)}</button>`).join('')}
-      <input type="number" min="0" step="100" value="${G.amt}" style="width:110px" onchange="act.setAmt(this.value)" aria-label="Eigener Betrag">
-      <span class="muted" style="font-size:13px">+ CHF 50 Gebühr pro Transaktion</span>
+    ${newsCard()}
+    <div class="amounts">
+      <span class="label">Betrag</span>
+      ${amts.map(a=>`<button class="btn-sm chip ${G.amt===a?'on':''}" onclick="act.setAmt(${a})">${fmt(a)}</button>`).join('')}
+      <input id="amt" type="number" min="0" step="100" value="${G.amt}" style="width:110px" onchange="act.setAmt(this.value)" aria-label="Eigener Betrag">
+      <span class="muted" style="font-size:13px">+ CHF 50 Gebühr</span>
     </div>
-    ${G.flash?`<div class="flash">${esc(G.flash)}</div>`:''}
-    <div class="tablewrap"><table>
-      <tr><th>Anlage</th><th class="r">Kurs</th><th class="r">Dein Bestand</th><th class="r">Haltejahre</th><th></th></tr>
+    ${G.flash?`<div class="flash" role="alert">${esc(G.flash)}</div>`:''}
+    <div class="assets">
       ${ASSETS.map(a=>{
-        const v = posVal(p,a.id), h = p.hold[a.id]||0, dead = G.prices[a.id]<=0, panicNow = sellersOf(a.id);
-        return `<tr>
-          <td><span class="dot" style="background:${a.color}"></span>${a.name}${dead?'<span class="tag">wertlos</span>':''}</td>
-          <td class="r num">${G.prices[a.id].toFixed(1)} %</td>
-          <td class="r num">${v>0?chf(v):'<span class="muted">–</span>'}</td>
-          <td class="r num">${v>0 && a.id!=='spar'?`${h} J.${h>0&&(h+1)%3===0?' <span class="tag">Bonus nächstes Jahr</span>':''}`:'<span class="muted">–</span>'}</td>
-          <td class="r"><div class="row" style="justify-content:flex-end;flex-wrap:nowrap">
-            <button class="small" onclick="act.buy('${a.id}')" ${dead?'disabled':''}>Kaufen</button>
-            <button class="small" onclick="act.sell('${a.id}')" ${v>0?'':'disabled'}>Verkaufen</button>
-            <button class="small" onclick="act.sellAll('${a.id}')" ${v>0?'':'disabled'}>Alles</button>
-          </div></td></tr>`;}).join('')}
-    </table></div>
-    <div class="between" style="margin-top:14px">
-      <div><b>Bankkredit</b> <span class="muted">(max. ${chf(CREDIT_MAX)}, 10 % Zins/Jahr)</span></div>
+        const v = posVal(p,a.id), h = p.hold[a.id]||0, dead = G.prices[a.id]<=0;
+        return `<div class="arow">
+          <div class="nm"><span class="dot" style="background:${a.color};width:12px;height:12px"></span><div>${a.name}${dead?' <span class="tag">wertlos</span>':''}<div class="sub num">${G.prices[a.id].toFixed(1)} %</div></div></div>
+          <div><span class="label">Bestand</span><div class="num">${v>0?chf(v):'–'}</div></div>
+          <div><span class="label">Haltejahre</span><div class="num">${v>0 && a.id!=='spar'?`${h} J.${h>0&&(h+1)%3===0?' <span class="tag">Bonus bald</span>':''}`:'–'}</div></div>
+          <div class="acts">
+            <button class="btn-sm btn-buy" onclick="act.buy('${a.id}')" ${dead?'disabled':''}>Kaufen</button>
+            <button class="btn-sm btn-sell" onclick="act.sell('${a.id}')" ${v>0?'':'disabled'}>Verkaufen</button>
+            <button class="btn-sm" onclick="act.sellAll('${a.id}')" ${v>0?'':'disabled'}>Alles</button>
+          </div>
+        </div>`;}).join('')}
+    </div>
+    <div class="credit">
+      <div><b>Bankkredit</b> <span class="muted">max. ${chf(CREDIT_MAX)}, 10 % Zins pro Jahr</span></div>
       <div class="row">
-        <button class="small" onclick="act.borrow()" ${p.debt>=CREDIT_MAX?'disabled':''}>Leihen</button>
-        <button class="small" onclick="act.repay()" ${p.debt<=0?'disabled':''}>Zurückzahlen</button>
+        <button class="btn-sm" onclick="act.borrow()" ${p.debt>=CREDIT_MAX?'disabled':''}>Leihen</button>
+        <button class="btn-sm" onclick="act.repay()" ${p.debt<=0?'disabled':''}>Zurückzahlen</button>
       </div>
     </div>
-    ${p.turnLog.length?`<div class="log">${p.turnLog.map(esc).join('<br>')}</div>`:''}
-  </div>`;
+    ${p.turnLog.length?`<div class="log">${p.turnLog.map(t=>`<div>› ${esc(t)}</div>`).join('')}</div>`:''}
+  </section>`;
 }
 function viewMarket(){
-  const res = G.results;
+  const res = G.rolling ? null : G.results;
   const rows = ASSETS.map(a=>{
     const r = res && res.find(x=>x.id===a.id);
-    const s = sellersOf(a.id), panic = r ? r.panic : (panicFor(a.id)?-10:0);
-    const sellCount = r ? r.sellers : s;
+    const panic = r ? r.panic : (panicFor(a.id)?-10:0);
+    const sellCount = r ? r.sellers : sellersOf(a.id);
+    const dice = a.fixed ? `<span class="die" style="border-color:${a.color}">+1 %</span>`
+      : Array.from({length:ROLLS},(_,k)=>`<span class="die${G.rolling?' tumble':''}" data-a="${a.id}" data-k="${k}" style="border-color:${a.color};animation-delay:${k*-0.11}s">${r?pct(r.dice[k]):'?'}</span>`).join('');
     return `<tr>
-      <td><span class="dot" style="background:${a.color}"></span>${a.name}</td>
-      <td class="r num ${r?cls(a.fixed?0:(G.news.fx[a.id]||0)):''}">${a.fixed?'–':r?pct(G.news.fx[a.id]||0):'<span class="muted">?</span>'}</td>
-      <td class="r"><div class="row" style="justify-content:flex-end;flex-wrap:nowrap;gap:4px">${a.fixed?`<span class="die" style="border-color:${a.color}">+1 %</span>`:Array.from({length:ROLLS},(_,k)=>`<span class="die" id="die-${a.id}-${k}" style="border-color:${a.color}">${r?pct(r.dice[k]):'?'}</span>`).join('')}</div></td>
-      <td class="r num">${panic?`<span class="panic" title="${sellCount} von ${G.players.length} haben verkauft">−10 % 😱</span>`:'<span class="muted">–</span>'}</td>
-      <td class="r num ${r?cls(r.change):''}"><b>${r?pct(r.change):''}</b></td>
+      <td><span class="row" style="flex-wrap:nowrap"><span class="dot" style="background:${a.color}"></span><b>${a.name}</b></span></td>
+      <td class="r num ${r&&!a.fixed?cls(G.news.fx[a.id]||0):''}">${a.fixed?'–':r?pct(G.news.fx[a.id]||0):'<span class="muted">?</span>'}</td>
+      <td class="r"><div class="dice">${dice}</div></td>
+      <td class="r">${panic?`<span class="panic" title="${sellCount} von ${G.players.length} haben verkauft">−10 %</span>`:'<span class="muted">–</span>'}</td>
+      <td class="r"><span class="total ${r?cls(r.change):''}">${r?pct(r.change):''}</span></td>
       <td class="r num">${r?`${r.old.toFixed(1)} → <b>${r.nw.toFixed(1)} %</b>`:`${G.prices[a.id].toFixed(1)} %`}</td>
     </tr>`;}).join('');
   const panicked = ASSETS.filter(a=>res ? res.find(x=>x.id===a.id).panic : panicFor(a.id));
-  return `<div class="card">
-    <h2>3 · Markt würfeln${res?' – Ergebnis':''}</h2>
-    ${res?newsBox():''}
-    ${panicked.length?`<div class="flash">😱 <b>Herdentrieb!</b> Mehr als die Hälfte hat ${panicked.map(a=>a.name).join(', ')} verkauft – zusätzlich −10 %.</div>`:''}
-    <div class="tablewrap"><table>
+  return `<section class="card">
+    <div class="card-head"><h2>${res?'Der Markt hat entschieden':'Markt würfeln'}</h2><span class="label">Schritt 3 von 3</span></div>
+    ${res?newsCard():''}
+    ${panicked.length?`<div class="flash" style="margin:14px 0">Herdentrieb! Mehr als die Hälfte hat ${panicked.map(a=>a.name).join(', ')} verkauft – zusätzlich −10 %.</div>`:''}
+    <div class="tablewrap" style="margin-top:12px"><table class="mtable">
       <tr><th>Anlage</th><th class="r">Nachricht</th><th class="r">Würfel (3×)</th><th class="r">Panik</th><th class="r">Total</th><th class="r">Kurs</th></tr>
       ${rows}
     </table></div>
-    <div style="margin-top:14px">
-    ${res ? `<button class="primary" onclick="act.next()">${G.year>=ROUNDS?'Spiel auswerten 🏁':`Weiter zu Jahr ${G.year+1} →`}</button>`
-          : `<button class="primary" onclick="act.roll()" ${G.rolling?'disabled':''}>${G.rolling?'Würfel rollen …':'🎲 Würfeln!'}</button>`}
+    <div class="roll-zone">
+    ${res ? `<button class="btn-main" onclick="act.next()">${G.year>=ROUNDS?'Spiel auswerten':`Weiter zu Jahr ${G.year+1} →`}</button>`
+          : `<button class="btn-main" onclick="act.roll()" ${G.rolling?'disabled':''}>${G.rolling?'Die Würfel rollen …':'🎲 Würfeln!'}</button>
+             <span class="muted">Jede Anlage wird dreimal gewürfelt.</span>`}
     </div>
-  </div>
+  </section>
   ${res ? yearReport() : ''}`;
 }
 function yearReport(){
-  return `<div class="card"><h2>Jahresabschluss ${G.year}</h2>
+  const maxD = Math.max(1, ...G.players.map(p=>Math.abs(netWorth(p)-p.netBefore)));
+  return `<section class="card"><div class="card-head"><h2>Jahresabschluss ${G.year}</h2></div>
     <div class="tablewrap"><table>
-      <tr><th>Person</th><th class="r">Vermögen</th><th class="r">Veränderung</th><th>Notizen</th></tr>
+      <tr><th>Person</th><th class="r">Vermögen</th><th class="r">Veränderung</th><th style="width:22%"></th><th>Notizen</th></tr>
       ${G.players.map(p=>{ const n = netWorth(p), d = n - p.netBefore; return `<tr>
-        <td><span class="dot" style="background:${p.color}"></span>${esc(p.name)}</td>
-        <td class="r num"><b>${chf(n)}</b></td>
+        <td><span class="row" style="flex-wrap:nowrap"><span class="dot" style="background:${p.color}"></span>${esc(p.name)}</span></td>
+        <td class="r num"><b data-count-from="${p.netBefore}" data-count-to="${n}">${chf(n)}</b></td>
         <td class="r num ${cls(d)}">${d>=0?'+':''}${chf(d)}</td>
+        <td><div class="delta-bar"><i style="width:${Math.abs(d)/maxD*100}%;background:${d>=0?'var(--gain)':'var(--loss)'}"></i></div></td>
         <td class="muted" style="font-size:13px">${p.yearNotes.length?esc(p.yearNotes.join(', ')):'–'}</td></tr>`;}).join('')}
-    </table></div></div>`;
+    </table></div></section>`;
 }
 function standings(){
-  return `<div class="card"><h3>Zwischenstand</h3>
+  return `<section class="card"><div class="card-head" style="margin-bottom:8px"><h3>Zwischenstand</h3></div>
     <div class="tablewrap"><table>
-      <tr><th>Person</th><th class="r">Vermögen</th></tr>
-      ${G.players.slice().sort((a,b)=>netWorth(b)-netWorth(a)).map(p=>`<tr><td><span class="dot" style="background:${p.color}"></span>${esc(p.name)} ${p.type!=='human'?'<span class="tag">Computer</span>':''}</td><td class="r num">${chf(netWorth(p))}</td></tr>`).join('')}
-    </table></div></div>`;
+      ${G.players.slice().sort((a,b)=>netWorth(b)-netWorth(a)).map((p,i)=>`<tr><td class="num muted" style="width:28px">${i+1}</td><td><span class="row" style="flex-wrap:nowrap"><span class="dot" style="background:${p.color}"></span>${esc(p.name)} ${p.type!=='human'?'<span class="tag">Computer</span>':''}</span></td><td class="r num">${chf(netWorth(p))}</td></tr>`).join('')}
+    </table></div></section>`;
 }
 function lineChart(series){
-  const w=640, h=240, pl=56, pr=12, pt=10, pb=26;
+  const w=640, h=250, pl=52, pr=14, pt=12, pb=28;
   const all = series.flatMap(s=>s.values);
   let max = Math.max(...all), min = Math.min(...all, 0);
   max = Math.ceil(max/5000)*5000; min = Math.floor(min/5000)*5000;
   const X = i => pl + i/ROUNDS*(w-pl-pr), Y = v => pt + (1-(v-min)/(max-min||1))*(h-pt-pb);
   const step = Math.max(5000, Math.ceil((max-min)/4/5000)*5000);
   const ticks = []; for (let v=min; v<=max; v+=step) ticks.push(v);
-  return `<svg viewBox="0 0 ${w} ${h}" width="100%" role="img" aria-label="Vermögensverlauf">
-    ${ticks.map(v=>`<line x1="${pl}" x2="${w-pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--border)"/><text x="${pl-6}" y="${Y(v)+4}" text-anchor="end">${fmt(v/1000)}k</text>`).join('')}
+  return `<div class="tablewrap"><svg viewBox="0 0 ${w} ${h}" width="100%" style="min-width:420px" role="img" aria-label="Vermögensverlauf">
+    ${ticks.map(v=>`<line x1="${pl}" x2="${w-pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${pl-8}" y="${Y(v)+4}" text-anchor="end">${fmt(v/1000)}k</text>`).join('')}
+    <line x1="${pl}" x2="${w-pr}" y1="${Y(START)}" y2="${Y(START)}" stroke="var(--muted)" stroke-dasharray="4 4" opacity=".6"/>
     ${Array.from({length:ROUNDS+1},(_,i)=>`<text x="${X(i)}" y="${h-8}" text-anchor="middle">${i===0?'Start':'J'+i}</text>`).join('')}
     ${series.map(s=>`<polyline points="${s.values.map((v,i)=>`${X(i)},${Y(v)}`).join(' ')}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linejoin="round"/>
-      ${s.values.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${s.color}"><title>${esc(s.name)} · ${i===0?'Start':'Jahr '+i}: ${chf(v)}</title></circle>`).join('')}`).join('')}
-  </svg>
+      ${s.values.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="${i===s.values.length-1?5:3}" fill="${s.color}"><title>${esc(s.name)} · ${i===0?'Start':'Jahr '+i}: ${chf(v)}</title></circle>`).join('')}`).join('')}
+  </svg></div>
   <div class="legend">${series.map(s=>`<span><span class="dot" style="background:${s.color}"></span>${esc(s.name)}</span>`).join('')}</div>`;
 }
 function viewEnd(){
   const ranked = G.players.slice().sort((a,b)=>(b.score??-Infinity)-(a.score??-Infinity));
   const win = ranked[0];
-  return `<div class="card">
-    <div class="center">
-      <div class="big">🏆</div>
-      <h2 style="font-size:26px">${win.out?'Alle haben Schulden – niemand gewinnt!':`${esc(win.name)} gewinnt mit ${fmt(win.score)} Punkten!`}</h2>
-    </div>
+  const top = ranked.filter(p=>!p.out).slice(0,3);
+  const order = [top[1], top[0], top[2]].filter(Boolean);
+  const heights = {0:170, 1:120, 2:85};
+  return `<section class="card">
+    <div style="text-align:center"><span class="label">Spielende nach ${ROUNDS} Jahren</span>
+      <h2 style="font-size:clamp(26px,4vw,38px);margin-top:6px">${win.out?'Alle haben Schulden – niemand gewinnt.':`${esc(win.name)} gewinnt mit ${fmt(win.score)} Punkten!`}</h2></div>
+    ${top.length?`<div class="podium">${order.map(p=>{ const rank = top.indexOf(p); return `<div class="pod">
+        <span class="who">${esc(p.name)}</span><span class="pts">${fmt(p.score)} P.</span>
+        <div class="block" style="height:${heights[rank]}px;background:${p.color}">${rank+1}</div></div>`;}).join('')}</div>`:''}
     <div class="tablewrap"><table>
       <tr><th>#</th><th>Person</th><th class="r">Endvermögen</th><th>Anlageziel</th><th class="r">Punkte</th></tr>
       ${ranked.map((p,i)=>`<tr>
-        <td>${p.out?'–':i+1}</td>
-        <td><span class="dot" style="background:${p.color}"></span>${esc(p.name)}</td>
-        <td class="r num ${p.out?'neg':''}">${chf(p.final)}</td>
-        <td style="font-size:13px">${p.goal.name}: ${p.goalMet?`<span class="pos">✓ +${fmt(p.goal.bonus)}</span>`:'<span class="muted">✗ nicht erreicht</span>'}<div class="muted">${p.goal.text}</div></td>
-        <td class="r num"><b>${p.out?'<span class="neg">ausgeschieden</span>':fmt(p.score)}</b></td>
+        <td class="num">${p.out?'–':i+1}</td>
+        <td><span class="row" style="flex-wrap:nowrap"><span class="dot" style="background:${p.color}"></span>${esc(p.name)}</span></td>
+        <td class="r num ${p.out?'loss':''}">${chf(p.final)}</td>
+        <td style="font-size:13px">${p.goal.name}: ${p.goalMet?`<span class="gain">✓ +${fmt(p.goal.bonus)}</span>`:'<span class="muted">✗ nicht erreicht</span>'}<div class="muted">${p.goal.text}</div></td>
+        <td class="r num"><b>${p.out?'<span class="loss">ausgeschieden</span>':fmt(p.score)}</b></td>
       </tr>`).join('')}
     </table></div>
-  </div>
-  <div class="card"><h2>Vermögensverlauf</h2>${lineChart(G.players.map(p=>({name:p.name,color:p.color,values:p.hist})))}</div>
-  <div class="card"><h2>Was lernen wir daraus?</h2>
+  </section>
+  <section class="card"><div class="card-head"><h2>Vermögensverlauf</h2><span class="label">gestrichelt = Startkapital</span></div>${lineChart(G.players.map(p=>({name:p.name,color:p.color,values:p.hist})))}</section>
+  <section class="card"><div class="card-head"><h2>Was lernen wir daraus?</h2></div>
     <div class="tablewrap"><table>
       <tr><th>Person</th><th class="r">Rendite</th><th class="r">Kaufkraft nach Inflation*</th><th class="r">Gebühren</th><th class="r">Kredit zurückbezahlt</th></tr>
-      ${G.players.map(p=>`<tr><td><span class="dot" style="background:${p.color}"></span>${esc(p.name)}</td>
+      ${G.players.map(p=>`<tr><td><span class="row" style="flex-wrap:nowrap"><span class="dot" style="background:${p.color}"></span>${esc(p.name)}</span></td>
         <td class="r num ${cls(p.final-START)}">${pct((p.final/START-1)*100)}</td>
         <td class="r num">${chf(p.final/Math.pow(1+INFL,ROUNDS))}</td>
         <td class="r num">${chf(p.fees)}</td>
         <td class="r num">${chf(p.repaid)}</td></tr>`).join('')}
     </table></div>
-    <p class="muted" style="font-size:13px">* Bei angenommenen 2 % Inflation pro Jahr. Das Sparkonto (+1 %) hätte aus CHF 10'000 nur ${chf(START*Math.pow(1.01,ROUNDS))} gemacht – real also <b>weniger</b> Kaufkraft: ${chf(START*Math.pow(1.01/1.02,ROUNDS))}.</p>
-    <button class="primary" onclick="G=null;render()">Neues Spiel</button>
-  </div>`;
+    <p class="muted" style="font-size:13px;margin:12px 0 18px">* Bei angenommenen 2 % Inflation pro Jahr. Das Sparkonto (+1 %) hätte aus CHF 10'000 nur ${chf(START*Math.pow(1.01,ROUNDS))} gemacht – real also <b>weniger</b> Kaufkraft: ${chf(START*Math.pow(1.01/1.02,ROUNDS))}.</p>
+    <button class="btn-main" onclick="G=null;render()">Neues Spiel</button>
+  </section>`;
 }
 
-/* ============ Render ============ */
-const PHASES = ['Nachricht','Handeln','Markt'];
-function render(){
-  const app = $('#app');
-  if (!G){ app.innerHTML = `<header class="top"><h1>📈 Börsenfieber</h1></header>` + viewSetup(); return; }
-  const idx = {news:0, handover:1, trade:1, market:2}[G.phase];
-  let main = '';
-  switch (G.phase){
-    case 'news': main = viewNews(); break;
-    case 'handover': main = viewHandover(); break;
-    case 'trade': main = viewTrade(); break;
-    case 'market': main = viewMarket(); break;
-    case 'end': main = viewEnd(); break;
-  }
-  app.innerHTML = `<header class="top">
-      <h1>📈 Börsenfieber</h1>
-      <div class="yr">${G.phase==='end'?'Spielende':`Jahr <b>${G.year}</b> / ${ROUNDS} · ${PHASES.map((n,i)=>i===idx?`<b style="color:var(--accent)">${n}</b>`:n).join(' › ')}`}</div>
-    </header>
-    <div class="wrap"><div class="grid"><main>${main}</main>${G.phase==='handover'?'':viewBoard()}</div></div>`;
+/* ============ Animationen ============ */
+function countUp(){
+  if (REDUCE()) return;
+  document.querySelectorAll('[data-count-to]').forEach(el=>{
+    const from = +el.dataset.countFrom, to = +el.dataset.countTo, t0 = performance.now(), dur = 1100;
+    const step = t => { const k = Math.min(1,(t-t0)/dur), e = 1-Math.pow(1-k,3); el.textContent = chf(from+(to-from)*e); if (k<1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  });
 }
-render();
+function confetti(){
+  const cv = document.getElementById('confetti');
+  if (!cv || REDUCE()) return;
+  cv.hidden = false;
+  const ctx = cv.getContext('2d'), dpr = window.devicePixelRatio||1;
+  const W = cv.width = innerWidth*dpr, H = cv.height = innerHeight*dpr;
+  const cols = [...PCOLORS, '#F2B233', '#4ADE95'];
+  const bits = Array.from({length:160},()=>({x:Math.random()*W, y:-Math.random()*H*.6, vx:(Math.random()-.5)*3*dpr, vy:(2+Math.random()*4)*dpr,
+    r:Math.random()*Math.PI, vr:(Math.random()-.5)*.3, s:(5+Math.random()*7)*dpr, c:cols[rnd(cols.length)]}));
+  const t0 = performance.now();
+  const frame = t => {
+    ctx.clearRect(0,0,W,H);
+    for (const b of bits){ b.x+=b.vx; b.y+=b.vy; b.vy+=.04*dpr; b.r+=b.vr;
+      ctx.save(); ctx.translate(b.x,b.y); ctx.rotate(b.r); ctx.fillStyle=b.c; ctx.fillRect(-b.s/2,-b.s/4,b.s,b.s/2); ctx.restore(); }
+    if (t-t0 < 4200) requestAnimationFrame(frame); else { ctx.clearRect(0,0,W,H); cv.hidden = true; }
+  };
+  requestAnimationFrame(frame);
+}
+
+/* ============ Würfeln mit Animation ============ */
+act.roll = () => {
+  if (G.rolling || G.results) return;
+  G.rolling = true; render();
+  computeMarket();                  // Ergebnis steht fest, wird aber erst nach der Animation gezeigt
+  const finish = () => { G.rolling = false; render(); window.scrollTo({top:0, behavior: REDUCE()?'auto':'smooth'}); };
+  if (REDUCE()){ finish(); return; }
+  const live = [...document.querySelectorAll('.die[data-a]')];
+  const iv = setInterval(()=>{ for (const el of live) if (el.classList.contains('tumble')) el.textContent = pct(A[el.dataset.a].die[rnd(6)]); }, 75);
+  for (let k=0;k<ROLLS;k++){
+    setTimeout(()=>{
+      for (const el of live.filter(e=>+e.dataset.k===k)){
+        const r = G.results.find(x=>x.id===el.dataset.a);
+        el.textContent = pct(r.dice[k]); el.classList.remove('tumble'); el.classList.add('land');
+      }
+    }, 650 + k*420);
+  }
+  setTimeout(()=>{ clearInterval(iv); finish(); }, 650 + ROLLS*420 + 450);
+};
+
+/* ============ Render ============ */
+const STEP_NAMES = ['Nachricht','Handeln','Markt'];
+let lastKey = null;
+function render(){
+  const app = document.getElementById('app');
+  const key = G ? [G.phase, G.year, G.turn, G.rolling?'r':'', G.results&&!G.rolling?'res':''].join('|') : 'setup';
+  const fresh = key !== lastKey;
+  lastKey = key;
+  const yearDots = G ? Array.from({length:ROUNDS},(_,i)=>`<i class="${i+1<G.year||G.phase==='end'?'done':i+1===G.year?'now':''}"></i>`).join('') : '';
+  const idx = G ? {news:0, handover:1, trade:1, market:2}[G.phase] : -1;
+  const header = `<header class="top"><div class="top-in">
+      <div class="brand ${fresh&&!G?'enter-brand':''}">
+        <svg viewBox="0 0 34 24" aria-hidden="true"><polyline class="fever" points="2,18 9,14 13,17 19,6 24,11 32,3"/></svg>
+        <h1>Börsenfieber</h1></div>
+      ${G?`<div class="progress">
+        <span class="label">${G.phase==='end'?'Spielende':`Jahr ${G.year} / ${ROUNDS}`}</span><span class="years" aria-hidden="true">${yearDots}</span>
+        ${G.phase==='end'?'':`<span class="steps">${STEP_NAMES.map((n,i)=>`<span class="${i===idx?'on':''}">${n}</span>`).join('')}</span>`}
+      </div>`:''}
+    </div></header>${tickerHTML()}`;
+  let body;
+  if (!G) body = viewSetup();
+  else {
+    let main = '';
+    switch (G.phase){
+      case 'news': main = viewNews(); break;
+      case 'handover': main = viewHandover(); break;
+      case 'trade': main = viewTrade(); break;
+      case 'market': main = viewMarket(); break;
+      case 'end': main = viewEnd(); break;
+    }
+    body = `<div class="grid"><main>${main}</main>${G.phase==='handover'?'':viewBoard(false)}</div>`;
+  }
+  app.innerHTML = `${header}<div class="wrap ${fresh?'enter':''}">${body}</div>`;
+  if (fresh && G && G.phase==='market' && G.results && !G.rolling) countUp();
+  if (fresh && G && G.phase==='end') confetti();
+}
+
+/* Spielstand bei einer neuen Version der Seite behalten */
+function snapshot(){
+  if (!G) return {setupRows};
+  return {setupRows, G:{...G, players:G.players.map(p=>({...p, sold:[...p.sold]}))}};
+}
+function start(data){
+  try {
+    if (data && data.setupRows) setupRows = data.setupRows;
+    if (data && data.G){ G = data.G; G.rolling = false; G.players.forEach(p=>{ p.sold = new Set(p.sold||[]); }); }
+  } catch { G = null; }
+  render();
+}
+window.claude?.hot?.snapshot?.(snapshot);
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 </script>
-</body>
-</html>
