@@ -103,7 +103,14 @@ export const RAP: Record<string, CantonRap> = {
   },
   gr: {
     tracks: [
-      { artist: "Gimma", note: "Aus Chur.", videoUrl: "https://www.youtube.com/watch?v=UNRhdileRwg", videoTitle: "Superschwiizer" },
+      {
+        artist: "Gimma",
+        song: "Take a ride",
+        note: "Aus Chur. Hook: ab 2:16 (2:16–2:38) – Stelle bitte prüfen.",
+        hookUrl: "assets/audio/music/gr-hook-take-a-ride.mp3",
+        videoUrl: "https://www.youtube.com/watch?v=UNRhdileRwg",
+        videoTitle: "Superschwiizer",
+      },
       { artist: "Sektion Kuchikäschtli", note: "Aus Igis.", videoUrl: "https://www.youtube.com/watch?v=WBJmqb6xsG8", videoTitle: "Lampafiaber" },
       { artist: "Liricas Analas", note: "Rappen auf Romanisch.", videoUrl: "https://www.youtube.com/watch?v=eRvM2KKDeGA", videoTitle: "Siemis" },
     ],
