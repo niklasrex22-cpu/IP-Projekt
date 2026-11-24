@@ -83,10 +83,10 @@ export const RAP: Record<string, CantonRap> = {
   bl: { tracks: [], missing: "Keine klare Zuordnung gefunden." },
   sh: { tracks: [], missing: "Keine bekannte Rap-Grösse gefunden." },
   ar: {
-    tracks: [{ artist: "Bligg", song: "Volksmusigg", note: "Kein Rapper aus Appenzell – als Ersatz ein Mix aus Rap und Volksmusik, gemeinsam mit der Streichmusik Alder aus Appenzell.", videoUrl: "https://www.youtube.com/watch?v=yHxHblUjf-w" }],
+    tracks: [{ artist: "Bligg", song: "Volksmusigg", note: "Kein Rapper aus Appenzell – als Ersatz ein Mix aus Rap und Volksmusik, gemeinsam mit der Streichmusik Alder aus Appenzell. Hook: Refrain ab 1:05 (1:05–1:28).", hookUrl: "assets/audio/music/ap-hook-volksmusigg.mp3", videoUrl: "https://www.youtube.com/watch?v=yHxHblUjf-w" }],
   },
   ai: {
-    tracks: [{ artist: "Bligg", song: "Volksmusigg", note: "Kein Rapper aus Appenzell – als Ersatz ein Mix aus Rap und Volksmusik, gemeinsam mit der Streichmusik Alder aus Appenzell.", videoUrl: "https://www.youtube.com/watch?v=yHxHblUjf-w" }],
+    tracks: [{ artist: "Bligg", song: "Volksmusigg", note: "Kein Rapper aus Appenzell – als Ersatz ein Mix aus Rap und Volksmusik, gemeinsam mit der Streichmusik Alder aus Appenzell. Hook: Refrain ab 1:05 (1:05–1:28).", hookUrl: "assets/audio/music/ap-hook-volksmusigg.mp3", videoUrl: "https://www.youtube.com/watch?v=yHxHblUjf-w" }],
   },
   sg: {
     tracks: [
