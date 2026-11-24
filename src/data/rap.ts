@@ -54,7 +54,18 @@ export const RAP: Record<string, CantonRap> = {
       { artist: "Baze", note: "Weiterer Berner Rapper.", videoUrl: "https://www.youtube.com/watch?v=_1sDueWzh3s", videoTitle: "Bounce Cypher 2025 (SRF)" },
     ],
   },
-  lu: { tracks: [{ artist: "Mimiks", videoUrl: "https://www.youtube.com/watch?v=15gc0W8wypM", videoTitle: "Bounce Cypher 2025 (SRF)" }, { artist: "Zora", note: "Rapperin aus Luzern." }] },
+  lu: {
+    tracks: [
+      {
+        artist: "Raboose",
+        song: "Hässig für immer",
+        note: "Von der Projektgruppe für Luzern ausgewählt. Hook: Refrain ab 1:55 (1:55–2:10).",
+        hookUrl: "assets/audio/music/lu-hook-haessig.mp3",
+      },
+      { artist: "Mimiks", videoUrl: "https://www.youtube.com/watch?v=15gc0W8wypM", videoTitle: "Bounce Cypher 2025 (SRF)" },
+      { artist: "Zora", note: "Rapperin aus Luzern." },
+    ],
+  },
   ur: { tracks: [], missing: "Keine bekannte Rap-Grösse gefunden." },
   sz: { tracks: [{ artist: "C.mEE", note: "Herkunft: Kanton Schwyz.", videoUrl: "https://www.youtube.com/watch?v=4o09V_aXWyE", videoTitle: "Obsessions" }] },
   ow: { tracks: [], missing: "Keine bekannte Rap-Grösse gefunden." },
@@ -86,18 +97,7 @@ export const RAP: Record<string, CantonRap> = {
     ],
   },
   ag: { tracks: [{ artist: "L.A.B", song: "Still got a Mic", note: "Aus Killwangen AG. Mit dem Song gewann er im Dezember 2023 den kleinen Prix Walo." }] },
-  tg: {
-    tracks: [
-      {
-        artist: "Raboose",
-        song: "Hässig für immer",
-        note: "Mit Wurzeln im Thurgau. Hook: Refrain ab 1:55 (1:55–2:10).",
-        hookUrl: "assets/audio/music/tg-hook-haessig.mp3",
-        videoUrl: "https://www.youtube.com/watch?v=70zjqOCOREo",
-        videoTitle: "Wenn I Boose Bi",
-      },
-    ],
-  },
+  tg: { tracks: [{ artist: "Raboose", note: "Mit Wurzeln im Thurgau.", videoUrl: "https://www.youtube.com/watch?v=70zjqOCOREo", videoTitle: "Wenn I Boose Bi" }] },
   ti: { tracks: [{ artist: "Mattak", note: "Aus Comano.", videoUrl: "https://www.youtube.com/watch?v=4nyZHhevGjo", videoTitle: "Lacrime di coccodrillo" }] },
   vd: {
     tracks: [
