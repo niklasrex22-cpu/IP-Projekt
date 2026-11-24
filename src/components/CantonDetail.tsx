@@ -15,6 +15,7 @@ import { MotifPlayer } from "./MotifPlayer";
 import { PlayButton } from "./PlayButton";
 import { Wappen } from "./Wappen";
 import { motifFor } from "../audio/motifFor";
+import { RapSection } from "./RapSection";
 
 /** Lädt und analysiert eine Audiodatei (für Klangwelle & Pausen). */
 export function useFileAnalysis(url?: string) {
@@ -284,10 +285,18 @@ export function CantonDetail({ canton, onClose }: { canton: Canton; onClose?: ()
         )}
       </section>
 
+      {/* 5b · Rap */}
+      <section aria-labelledby={`rap-${canton.id}`}>
+        <h3 id={`rap-${canton.id}`}>
+          <span className="num">05</span> Rap aus dem Kanton
+        </h3>
+        <RapSection canton={canton} />
+      </section>
+
       {/* 6 · Gestaltung */}
       <section aria-labelledby={`art-${canton.id}`}>
         <h3 id={`art-${canton.id}`}>
-          <span className="num">05</span> Visuelle Gestaltung
+          <span className="num">06</span> Visuelle Gestaltung
         </h3>
         <div className="grid-2" style={{ gap: 12 }}>
           <div className="card pad" style={{ display: "grid", gap: 10 }}>
@@ -315,7 +324,7 @@ export function CantonDetail({ canton, onClose }: { canton: Canton; onClose?: ()
       {/* 7 · Quellen */}
       <section aria-labelledby={`src-${canton.id}`}>
         <h3 id={`src-${canton.id}`}>
-          <span className="num">06</span> Quellen
+          <span className="num">07</span> Quellen
         </h3>
         <ol className="source-list">
           {canton.sources.map((id) => {

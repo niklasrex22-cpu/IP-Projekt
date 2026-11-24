@@ -655,3 +655,70 @@
     transition: none;
   }
 }
+
+/* Rap aus dem Kanton */
+.rap {
+  display: grid;
+  gap: 10px;
+}
+.rap-card {
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px;
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--paper);
+}
+.rap-head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.rap-mic {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--c);
+  color: #fff;
+  flex: none;
+}
+.rap-artist {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.1;
+}
+.rap-song {
+  font-style: italic;
+  opacity: 0.85;
+}
+.rap-note {
+  font-size: 13px;
+  opacity: 0.75;
+}
+.rap-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.rap-card .btn.ghost {
+  color: var(--paper);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.rap-card .btn.ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.rap-card .chip {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--paper);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.map-tip .tip-rap {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  opacity: 0.95;
+}

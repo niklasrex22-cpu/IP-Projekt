@@ -190,6 +190,11 @@ In `src/data/quiz.ts` ein Objekt ergänzen:
 ```
 Fragen vom Typ `recording` ohne `audioUrl` werden automatisch ausgeblendet.
 
+### 4.7 Rap aus dem Kanton (Hook)
+Die Rap-Liste steht in `src/data/rap.ts`. Echte Lieder sind urheberrechtlich geschützt und werden deshalb nur verlinkt (YouTube- und Spotify-Suche).
+- **Direkt zum Hook springen:** bei einem Lied `videoUrl: "https://www.youtube.com/watch?v=XXXX&t=45s"` eintragen (`t=` = Startzeit des Hooks).
+- **Eigene Hook-Aufnahme:** Datei nach `public/assets/audio/music/` legen und `hookUrl: "assets/audio/music/zh-hook.mp3"` eintragen – dann erscheint ein Play-Button mit Visualisierung.
+
 ---
 
 ## 5. Externe Quellen und Lizenzen
