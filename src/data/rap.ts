@@ -54,7 +54,19 @@ export const RAP: Record<string, CantonRap> = {
       { artist: "Baze", note: "Weiterer Berner Rapper.", videoUrl: "https://www.youtube.com/watch?v=_1sDueWzh3s", videoTitle: "Bounce Cypher 2025 (SRF)" },
     ],
   },
-  lu: { tracks: [{ artist: "Mimiks", videoUrl: "https://www.youtube.com/watch?v=15gc0W8wypM", videoTitle: "Bounce Cypher 2025 (SRF)" }, { artist: "Zora", note: "Rapperin aus Luzern." }] },
+  lu: {
+    tracks: [
+      {
+        artist: "Mimiks",
+        song: "Hässig für immer",
+        note: "Von der Projektgruppe ausgewählt (Interpret bitte prüfen). Hook: Refrain ab 1:55 (1:55–2:10).",
+        hookUrl: "assets/audio/music/lu-hook-haessig.mp3",
+        videoUrl: "https://www.youtube.com/watch?v=15gc0W8wypM",
+        videoTitle: "Bounce Cypher 2025 (SRF)",
+      },
+      { artist: "Zora", note: "Rapperin aus Luzern." },
+    ],
+  },
   ur: { tracks: [], missing: "Keine bekannte Rap-Grösse gefunden." },
   sz: { tracks: [{ artist: "C.mEE", note: "Herkunft: Kanton Schwyz.", videoUrl: "https://www.youtube.com/watch?v=4o09V_aXWyE", videoTitle: "Obsessions" }] },
   ow: { tracks: [], missing: "Keine bekannte Rap-Grösse gefunden." },
