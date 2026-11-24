@@ -88,7 +88,19 @@ export const RAP: Record<string, CantonRap> = {
   ai: {
     tracks: [{ artist: "Bligg", song: "Volksmusigg", note: "Kein Rapper aus Appenzell – als Ersatz ein Mix aus Rap und Volksmusik, gemeinsam mit der Streichmusik Alder aus Appenzell.", videoUrl: "https://www.youtube.com/watch?v=yHxHblUjf-w" }],
   },
-  sg: { tracks: [{ artist: "Monet192", videoUrl: "https://www.youtube.com/watch?v=S0NJKZaRClc", videoTitle: "Vorbei" }, { artist: "E.S.I.K." }] },
+  sg: {
+    tracks: [
+      {
+        artist: "Monet192",
+        song: "Unendlich",
+        note: "Hook: ab 0:27 (0:27–0:40).",
+        hookUrl: "assets/audio/music/sg-hook-unendlich.mp3",
+        videoUrl: "https://www.youtube.com/watch?v=S0NJKZaRClc",
+        videoTitle: "Vorbei",
+      },
+      { artist: "E.S.I.K." },
+    ],
+  },
   gr: {
     tracks: [
       { artist: "Gimma", note: "Aus Chur.", videoUrl: "https://www.youtube.com/watch?v=UNRhdileRwg", videoTitle: "Superschwiizer" },
