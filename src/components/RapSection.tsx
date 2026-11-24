@@ -26,6 +26,7 @@ export function RapSection({ canton }: { canton: Canton }) {
               </div>
             </div>
             {t.note && <p className="rap-note">{t.note}</p>}
+            {t.videoUrl && t.videoTitle && <p className="rap-note">Video: «{t.videoTitle}»</p>}
             <div className="rap-actions">
               {t.hookUrl ? (
                 <PlayButton
@@ -39,8 +40,8 @@ export function RapSection({ canton }: { canton: Canton }) {
                   Eigene Hook-Aufnahme folgt
                 </span>
               )}
-              <a className="btn sm ghost" href={youtubeLink(t)} target="_blank" rel="noreferrer">
-                YouTube <Icon name="arrow" size={14} />
+              <a className={`btn sm ${t.videoUrl ? "accent" : "ghost"}`} href={youtubeLink(t)} target="_blank" rel="noreferrer">
+                <Icon name="play" size={14} /> {t.videoUrl ? "Video auf YouTube" : "Auf YouTube suchen"}
               </a>
               <a className="btn sm ghost" href={spotifyLink(t)} target="_blank" rel="noreferrer">
                 Spotify <Icon name="arrow" size={14} />
@@ -51,7 +52,7 @@ export function RapSection({ canton }: { canton: Canton }) {
       })}
       <p className="muted" style={{ fontSize: 12 }}>
         Recherche der Projektgruppe – vor der Präsentation prüfen. Die Lieder sind urheberrechtlich geschützt und öffnen darum auf YouTube bzw.
-        Spotify.
+        Spotify. Die Videos starten am Anfang des Lieds; zum Hook springt ihr mit dem Zeitregler.
       </p>
     </div>
   );
