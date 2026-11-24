@@ -5,10 +5,11 @@ import { SwissMap, type MapMode, type SwissMapHandle } from "../components/Swiss
 import { Wappen } from "../components/Wappen";
 import { CANTONS, CANTON_BY_ID } from "../data/cantons";
 import { LANGUAGE_LABEL, type LanguageCode } from "../data/types";
-import { useAccent } from "../lib/hooks";
+import { assetUrl, useAccent } from "../lib/hooks";
 import { href, navigate, replaceRoute } from "../lib/router";
 import { audio } from "../audio/engine";
 import { playCantonMusic } from "../components/MotifPlayer";
+import { hookFor } from "../data/rap";
 
 const MODES: { id: MapMode; label: string }[] = [
   { id: "art", label: "Künstlerisch" },
@@ -80,7 +81,12 @@ export function MapPage({ cantonId }: { cantonId?: string }) {
     const c = CANTON_BY_ID[id];
     if (!c) return;
     if (audio.state.playing && audio.state.cantonId === id) audio.stop();
-    else playCantonMusic(c);
+    else {
+      // Gibt es einen eigenen Rap-Hook, wird dieser gespielt – sonst das Klangmotiv
+      const h = hookFor(id);
+      if (h) void audio.playFile(`hook:${id}:${h.index}`, assetUrl(h.track.hookUrl!), id, `${h.track.artist} – Hook`);
+      else playCantonMusic(c);
+    }
   };
 
   const groups: LanguageCode[] = ["de", "fr", "it", "rm"];

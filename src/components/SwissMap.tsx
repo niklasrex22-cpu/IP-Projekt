@@ -3,7 +3,7 @@ import { BORDERS_PATH, COUNTRY_PATH, LAKE_PATHS, MAP_HEIGHT, MAP_WIDTH, SHAPES, 
 import { LANGUAGE_LABEL } from "../data/types";
 import { audio, usePlayback } from "../audio/engine";
 import { assetUrl, useReducedMotion } from "../lib/hooks";
-import { rapLabel } from "../data/rap";
+import { hookFor, rapLabel } from "../data/rap";
 
 export type MapMode = "art" | "geo" | "wappen";
 
@@ -545,7 +545,7 @@ export function SwissMap({
               {hovered.canton.abbreviation} · {hovered.canton.languages.map((l) => LANGUAGE_LABEL[l]).join(", ")}
             </span>
             {tapHint && rapLabel(hovered.canton.id) && <span className="tip-rap">🎤 {rapLabel(hovered.canton.id)}</span>}
-            {tapHint && <em className="tip-hint">{pb.playing && pb.cantonId === hovered.canton.id ? "♪ läuft – tippen zum Stoppen" : tapHint}</em>}
+            {tapHint && <em className="tip-hint">{pb.playing && pb.cantonId === hovered.canton.id ? "♪ läuft – tippen zum Stoppen" : hookFor(hovered.canton.id) ? "Tippen: Rap-Hook abspielen" : tapHint}</em>}
           </div>
         </div>
       )}

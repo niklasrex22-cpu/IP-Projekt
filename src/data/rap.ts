@@ -32,7 +32,16 @@ export interface CantonRap {
 }
 
 export const RAP: Record<string, CantonRap> = {
-  zh: { tracks: [{ artist: "Bligg", song: "Rosalie", note: "Bligg stammt aus Zürich.", videoUrl: "https://www.youtube.com/watch?v=0qCJNwZ2PEg" }] },
+  zh: {
+    tracks: [
+      {
+        artist: "BODY feat. Biggo",
+        note: "Von der Projektgruppe ausgewählt. Hook: 8 Takte ab 0:38 (0:38–0:53). Interpret bitte ergänzen.",
+        hookUrl: "assets/audio/music/zh-hook-body.mp3",
+      },
+      { artist: "Bligg", song: "Rosalie", note: "Bligg stammt aus Zürich.", videoUrl: "https://www.youtube.com/watch?v=0qCJNwZ2PEg" },
+    ],
+  },
   be: {
     tracks: [
       { artist: "Lo & Leduc", song: "079", videoUrl: "https://www.youtube.com/watch?v=kEQE7_qJA48" },
@@ -96,6 +105,13 @@ export function youtubeLink(t: RapTrack): string {
 
 export function spotifyLink(t: RapTrack): string {
   return `https://open.spotify.com/search/${q(t)}`;
+}
+
+/** Erster Rap mit eigener Hook-Datei (wird beim Antippen des Kantons gespielt) */
+export function hookFor(id: string): { track: RapTrack; index: number } | null {
+  const tracks = RAP[id]?.tracks ?? [];
+  const index = tracks.findIndex((t) => t.hookUrl);
+  return index >= 0 ? { track: tracks[index], index } : null;
 }
 
 /** Kurzer Text für Tooltip, z. B. «Bligg – Rosalie» */
