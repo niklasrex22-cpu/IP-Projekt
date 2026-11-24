@@ -36,7 +36,7 @@ export const RAP: Record<string, CantonRap> = {
     tracks: [
       {
         artist: "BODY feat. Biggo",
-        note: "Von der Projektgruppe ausgewählt. Hook: 8 Takte ab 0:38 (0:38–0:53). Interpret bitte ergänzen.",
+        note: "Von der Projektgruppe ausgewählt. Hook: 8 Takte ab 0:19 (0:19–0:33). Interpret bitte ergänzen.",
         hookUrl: "assets/audio/music/zh-hook-body.mp3",
       },
       { artist: "Bligg", song: "Rosalie", note: "Bligg stammt aus Zürich.", videoUrl: "https://www.youtube.com/watch?v=0qCJNwZ2PEg" },
