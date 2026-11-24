@@ -39,7 +39,12 @@ export const RAP: Record<string, CantonRap> = {
         note: "Von der Projektgruppe ausgewählt. Hook: 8 Takte ab 0:19 (0:19–0:33). Interpret bitte ergänzen.",
         hookUrl: "assets/audio/music/zh-hook-body.mp3",
       },
-      { artist: "Bligg", song: "Rosalie", note: "Bligg stammt aus Zürich.", videoUrl: "https://www.youtube.com/watch?v=0qCJNwZ2PEg" },
+      {
+        artist: "Bligg",
+        song: "Manhattan",
+        note: "Bligg stammt aus Zürich. Hook: Refrain ab 1:36 (1:36–1:52).",
+        hookUrl: "assets/audio/music/zh-hook-manhattan.mp3",
+      },
     ],
   },
   be: {
@@ -114,7 +119,7 @@ export function hookFor(id: string): { track: RapTrack; index: number } | null {
   return index >= 0 ? { track: tracks[index], index } : null;
 }
 
-/** Kurzer Text für Tooltip, z. B. «Bligg – Rosalie» */
+/** Kurzer Text für Tooltip, z. B. «Bligg – Manhattan» */
 export function rapLabel(id: string): string | null {
   const r = RAP[id];
   const t = r?.tracks[0];
