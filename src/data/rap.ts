@@ -97,7 +97,18 @@ export const RAP: Record<string, CantonRap> = {
     ],
   },
   ag: { tracks: [{ artist: "L.A.B", song: "Still got a Mic", note: "Aus Killwangen AG. Mit dem Song gewann er im Dezember 2023 den kleinen Prix Walo." }] },
-  tg: { tracks: [{ artist: "Raboose", note: "Mit Wurzeln im Thurgau.", videoUrl: "https://www.youtube.com/watch?v=70zjqOCOREo", videoTitle: "Wenn I Boose Bi" }] },
+  tg: {
+    tracks: [
+      {
+        artist: "Raboose",
+        song: "Butterfly Lavendel",
+        note: "Mit Wurzeln im Thurgau. Hook: ab 0:25 (0:25–0:45).",
+        hookUrl: "assets/audio/music/tg-hook-butterfly.mp3",
+        videoUrl: "https://www.youtube.com/watch?v=70zjqOCOREo",
+        videoTitle: "Wenn I Boose Bi",
+      },
+    ],
+  },
   ti: { tracks: [{ artist: "Mattak", note: "Aus Comano.", videoUrl: "https://www.youtube.com/watch?v=4nyZHhevGjo", videoTitle: "Lacrime di coccodrillo" }] },
   vd: {
     tracks: [
